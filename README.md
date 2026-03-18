@@ -12,11 +12,11 @@ This charts 75 years of those swings against measured streamflow in three wester
 
 ## Data sources
 
-- NOAA PSL ERSSTv5 — monthly Niño 3.4 sea surface temperatures
-- NCEP/NCAR Reanalysis — atmospheric state variables
-- NOAA CPC — oscillation indices (SOI, PDO, MJO)
-- USGS National Water Information System — discharge from three river gauges
-- NASA OISST v2.1 — gridded SST for spatial gradient computation
+- NOAA PSL ERSSTv5: monthly Niño 3.4 sea surface temperatures
+- NCEP/NCAR Reanalysis: atmospheric state variables
+- NOAA CPC: oscillation indices (SOI, PDO, MJO)
+- USGS National Water Information System: discharge from three river gauges
+- NASA OISST v2.1: gridded SST for spatial gradient computation
 
 ## Method
 
