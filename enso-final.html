@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>75 Years of the Pacific's Mood Swings</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #f5f1eb;
+  color: #1c1510;
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 52px 48px 68px;
+}
+
+.head-rule {
+  width: 44px;
+  height: 2px;
+  background: #b83c0e;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(32px, 4.8vw, 58px);
+  font-weight: 600;
+  line-height: 1.02;
+  color: #1c1510;
+  letter-spacing: -0.01em;
+  margin-bottom: 18px;
+}
+
+h1 em { font-style: italic; font-weight: 300; color: #b83c0e; }
+h1 em.cool { color: #1a5276; }
+
+.dek {
+  font-size: 19px;
+  color: #3d3229;
+  font-weight: 300;
+  max-width: 820px;
+  line-height: 1.78;
+  margin-bottom: 6px;
+}
+
+.explainer {
+  font-size: 15.5px;
+  color: #7a6a5e;
+  font-style: italic;
+  font-weight: 300;
+  max-width: 800px;
+  line-height: 1.65;
+  margin-bottom: 22px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(184,60,14,0.2);
+}
+
+.data-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(28,21,16,0.12);
+}
+
+.ds-item {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13.5px;
+  color: #6b5d52;
+  padding: 0 13px;
+  letter-spacing: 0.02em;
+  line-height: 1.9;
+}
+
+.ds-item:first-child { padding-left: 0; }
+
+.ds-n {
+  font-size: 21px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  color: #1c1510;
+  display: inline-block;
+  margin-right: 3px;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.ds-n.warm { color: #b83c0e; }
+.ds-n.cool { color: #1a5276; }
+.ds-sep { color: rgba(28,21,16,0.18); padding: 0 1px; font-family: 'Courier Prime', monospace; font-size: 12px; }
+
+.legend-line {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12.5px;
+  color: #6b5d52;
+  letter-spacing: 0.04em;
+}
+
+.leg-dash { width: 20px; height: 2px; border-radius: 1px; }
+
+.leg-hint {
+  margin-left: auto;
+  font-family: 'Crimson Pro', serif;
+  font-size: 14.5px;
+  color: #a8978a;
+  font-style: italic;
+}
+
+.chart-wrap { position: relative; margin-top: 4px; }
+#main-chart { width: 100%; display: block; }
+
+#detail-panel {
+  border-top: 1px solid rgba(28,21,16,0.10);
+  margin-top: 2px;
+  min-height: 200px;
+}
+
+.panel-empty {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+}
+
+.panel-empty-text {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  color: #c4b5a8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-content {
+  padding: 22px 0 18px;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  gap: 20px;
+}
+
+.event-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.event-title.warm { color: #b83c0e; }
+.event-title.cool { color: #1a5276; }
+
+.event-meta {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12.5px;
+  color: #8c7b6e;
+  letter-spacing: 0.04em;
+}
+
+.peak-block { text-align: right; }
+
+.peak-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 9.5px;
+  color: #a8978a;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.peak-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.peak-val.warm { color: #b83c0e; }
+.peak-val.cool { color: #1a5276; }
+
+/* River bars */
+.rivers-section { margin-bottom: 14px; }
+
+.rivers-heading {
+  font-family: 'Courier Prime', monospace;
+  font-size: 9.5px;
+  color: #b5a89e;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.rivers { display: flex; flex-direction: column; gap: 9px; }
+
+.river-row {
+  display: grid;
+  grid-template-columns: 148px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.river-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11.5px;
+  color: #8c7b6e;
+  text-align: right;
+  line-height: 1.5;
+}
+
+.river-name {
+  font-size: 12px;
+  color: #4a3f36;
+  display: block;
+}
+
+.river-loc {
+  font-size: 10px;
+  color: #b5a89e;
+  display: block;
+}
+
+.river-track {
+  position: relative;
+  height: 13px;
+  background: rgba(28,21,16,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.river-mid {
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(28,21,16,0.12);
+}
+
+.river-bar {
+  position: absolute;
+  top: 2px; bottom: 2px;
+  border-radius: 2px;
+  left: 50%; width: 0;
+  transition: left 0.55s ease, width 0.55s ease;
+}
+
+.river-readout {
+  text-align: right;
+  min-width: 100px;
+}
+
+.river-num {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: #6b5d52;
+  display: block;
+}
+
+.river-plain {
+  font-family: 'Crimson Pro', serif;
+  font-size: 13.5px;
+  color: #a8978a;
+  font-style: italic;
+  display: block;
+  line-height: 1.3;
+}
+
+.panel-note {
+  margin-top: 14px;
+  font-size: 15.5px;
+  color: #5c4e42;
+  font-style: italic;
+  line-height: 1.72;
+  font-weight: 300;
+  padding-left: 12px;
+  border-left: 2px solid rgba(28,21,16,0.1);
+  max-width: 900px;
+}
+
+.footer {
+  margin-top: 28px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(28,21,16,0.10);
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  color: #b5a89e;
+  line-height: 2;
+}
+
+.footer strong {
+  color: #8c7b6e;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .page { padding: 28px 18px 40px; }
+  .river-row { grid-template-columns: 90px 1fr auto; gap: 8px; }
+  .river-label { font-size: 9px; }
+  .leg-hint { display: none; }
+  .data-strip { flex-direction: column; }
+  .ds-sep { display: none; }
+  .ds-item { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head-rule"></div>
+
+  <h1>75 Years of the Pacific's<br>Mood Swings: <em>El Niño</em> &amp; <em class="cool">La Niña</em></h1>
+
+  <p class="dek">Every few years, the tropical Pacific Ocean shifts temperature, and the American West's rivers follow. This traces 75 years of those swings against measured streamflow in the Colorado, Columbia, and Sacramento rivers.</p>
+
+  <p class="explainer">The Niño 3.4 region is a patch of ocean near the equator. When it runs warmer than usual for several months, we call it El Niño; cooler than usual, La Niña. Both change where rain falls across North America, and you can see the effects in river flows hundreds of miles away.</p>
+
+  <div class="data-strip">
+    <span class="ds-item"><span class="ds-n">75</span> years of data</span>
+    <span class="ds-sep">·</span>
+    <span class="ds-item"><span class="ds-n">902</span> months observed</span>
+    <span class="ds-sep">·</span>
+    <span class="ds-item"><span class="ds-n warm">16</span> El Niño events</span>
+    <span class="ds-sep">·</span>
+    <span class="ds-item"><span class="ds-n cool">21</span> La Niña events</span>
+    <span class="ds-sep">·</span>
+    <span class="ds-item">record <span class="ds-n warm">+2.15°C</span> above normal</span>
+    <span class="ds-sep">·</span>
+    <span class="ds-item">Feb 2026 <span class="ds-n">neutral</span></span>
+  </div>
+
+  <div class="legend-line">
+    <div class="leg">
+      <div class="leg-dash" style="background:#b83c0e;"></div>
+      El Niño (warmer than normal)
+    </div>
+    <div class="leg">
+      <div class="leg-dash" style="background:#1a5276;"></div>
+      La Niña (cooler than normal)
+    </div>
+    <div class="leg">
+      <div class="leg-dash" style="background:#c9b9ad;"></div>
+      Neutral
+    </div>
+    <div class="leg-hint">hover an event marker to explore river response ↓</div>
+  </div>
+
+  <div class="chart-wrap">
+    <svg id="main-chart"></svg>
+  </div>
+
+  <div id="detail-panel">
+    <div class="panel-empty">
+      <div class="panel-empty-text">↑ hover an event marker to see how western rivers responded</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Data sources:</strong> NOAA PSL ERSSTv5 (sea surface temperatures) · NCEP/NCAR Reanalysis (atmospheric state) · NOAA CPC (oscillation indices) · USGS National Water Information System (streamflow) · NASA OISST v2.1 (gridded SST)<br>
+    <strong>Method:</strong> ENSO events classified per NOAA CPC definition (±0.5°C Niño 3.4 anomaly sustained ≥5 consecutive months, 1981–2010 baseline). River values are z-scores relative to the 1951–2026 monthly mean discharge. All five sources were pulled into a PostgreSQL relational database built for this project.<br>
+    <strong>Created by Noah Riego</strong> · University of Arizona · ISTA 322 · Spring 2026
+  </div>
+
+</div>
+
+<script>
+const RAW_MONTHLY = [{"year_month":"1951-01","year":1951,"month":1,"season":"DJF","nino34":25.24},{"year_month":"1951-02","year":1951,"month":2,"season":"DJF","nino34":25.71},{"year_month":"1951-03","year":1951,"month":3,"season":"MAM","nino34":26.9},{"year_month":"1951-04","year":1951,"month":4,"season":"MAM","nino34":27.58},{"year_month":"1951-05","year":1951,"month":5,"season":"MAM","nino34":27.92},{"year_month":"1951-06","year":1951,"month":6,"season":"JJA","nino34":27.73},{"year_month":"1951-07","year":1951,"month":7,"season":"JJA","nino34":27.6},{"year_month":"1951-08","year":1951,"month":8,"season":"JJA","nino34":27.02},{"year_month":"1951-09","year":1951,"month":9,"season":"SON","nino34":27.23},{"year_month":"1951-10","year":1951,"month":10,"season":"SON","nino34":27.2},{"year_month":"1951-11","year":1951,"month":11,"season":"SON","nino34":27.25},{"year_month":"1951-12","year":1951,"month":12,"season":"DJF","nino34":26.91},{"year_month":"1952-01","year":1952,"month":1,"season":"DJF","nino34":26.67},{"year_month":"1952-02","year":1952,"month":2,"season":"DJF","nino34":26.74},{"year_month":"1952-03","year":1952,"month":3,"season":"MAM","nino34":27.17},{"year_month":"1952-04","year":1952,"month":4,"season":"MAM","nino34":27.8},{"year_month":"1952-05","year":1952,"month":5,"season":"MAM","nino34":27.79},{"year_month":"1952-06","year":1952,"month":6,"season":"JJA","nino34":27.18},{"year_month":"1952-07","year":1952,"month":7,"season":"JJA","nino34":26.53},{"year_month":"1952-08","year":1952,"month":8,"season":"JJA","nino34":26.3},{"year_month":"1952-09","year":1952,"month":9,"season":"SON","nino34":26.36},{"year_month":"1952-10","year":1952,"month":10,"season":"SON","nino34":26.26},{"year_month":"1952-11","year":1952,"month":11,"season":"SON","nino34":25.92},{"year_month":"1952-12","year":1952,"month":12,"season":"DJF","nino34":26.21},{"year_month":"1953-01","year":1953,"month":1,"season":"DJF","nino34":26.74},{"year_month":"1953-02","year":1953,"month":2,"season":"DJF","nino34":27.0},{"year_month":"1953-03","year":1953,"month":3,"season":"MAM","nino34":27.57},{"year_month":"1953-04","year":1953,"month":4,"season":"MAM","nino34":28.04},{"year_month":"1953-05","year":1953,"month":5,"season":"MAM","nino34":28.28},{"year_month":"1953-06","year":1953,"month":6,"season":"JJA","nino34":28.12},{"year_month":"1953-07","year":1953,"month":7,"season":"JJA","nino34":27.43},{"year_month":"1953-08","year":1953,"month":8,"season":"JJA","nino34":26.94},{"year_month":"1953-09","year":1953,"month":9,"season":"SON","nino34":27.01},{"year_month":"1953-10","year":1953,"month":10,"season":"SON","nino34":26.87},{"year_month":"1953-11","year":1953,"month":11,"season":"SON","nino34":26.88},{"year_month":"1953-12","year":1953,"month":12,"season":"DJF","nino34":27.0},{"year_month":"1954-01","year":1954,"month":1,"season":"DJF","nino34":26.98},{"year_month":"1954-02","year":1954,"month":2,"season":"DJF","nino34":27.03},{"year_month":"1954-03","year":1954,"month":3,"season":"MAM","nino34":26.9},{"year_month":"1954-04","year":1954,"month":4,"season":"MAM","nino34":26.64},{"year_month":"1954-05","year":1954,"month":5,"season":"MAM","nino34":27.12},{"year_month":"1954-06","year":1954,"month":6,"season":"JJA","nino34":26.8},{"year_month":"1954-07","year":1954,"month":7,"season":"JJA","nino34":26.11},{"year_month":"1954-08","year":1954,"month":8,"season":"JJA","nino34":25.43},{"year_month":"1954-09","year":1954,"month":9,"season":"SON","nino34":25.12},{"year_month":"1954-10","year":1954,"month":10,"season":"SON","nino34":25.23},{"year_month":"1954-11","year":1954,"month":11,"season":"SON","nino34":25.57},{"year_month":"1954-12","year":1954,"month":12,"season":"DJF","nino34":25.26},{"year_month":"1955-01","year":1955,"month":1,"season":"DJF","nino34":25.61},{"year_month":"1955-02","year":1955,"month":2,"season":"DJF","nino34":25.81},{"year_month":"1955-03","year":1955,"month":3,"season":"MAM","nino34":26.22},{"year_month":"1955-04","year":1955,"month":4,"season":"MAM","nino34":26.6},{"year_month":"1955-05","year":1955,"month":5,"season":"MAM","nino34":26.66},{"year_month":"1955-06","year":1955,"month":6,"season":"JJA","nino34":26.55},{"year_month":"1955-07","year":1955,"month":7,"season":"JJA","nino34":26.15},{"year_month":"1955-08","year":1955,"month":8,"season":"JJA","nino34":25.51},{"year_month":"1955-09","year":1955,"month":9,"season":"SON","nino34":25.28},{"year_month":"1955-10","year":1955,"month":10,"season":"SON","nino34":24.41},{"year_month":"1955-11","year":1955,"month":11,"season":"SON","nino34":24.25},{"year_month":"1955-12","year":1955,"month":12,"season":"DJF","nino34":24.57},{"year_month":"1956-01","year":1956,"month":1,"season":"DJF","nino34":25.34},{"year_month":"1956-02","year":1956,"month":2,"season":"DJF","nino34":25.76},{"year_month":"1956-03","year":1956,"month":3,"season":"MAM","nino34":26.46},{"year_month":"1956-04","year":1956,"month":4,"season":"MAM","nino34":26.85},{"year_month":"1956-05","year":1956,"month":5,"season":"MAM","nino34":27.13},{"year_month":"1956-06","year":1956,"month":6,"season":"JJA","nino34":26.81},{"year_month":"1956-07","year":1956,"month":7,"season":"JJA","nino34":26.23},{"year_month":"1956-08","year":1956,"month":8,"season":"JJA","nino34":25.68},{"year_month":"1956-09","year":1956,"month":9,"season":"SON","nino34":25.73},{"year_month":"1956-10","year":1956,"month":10,"season":"SON","nino34":25.75},{"year_month":"1956-11","year":1956,"month":11,"season":"SON","nino34":25.56},{"year_month":"1956-12","year":1956,"month":12,"season":"DJF","nino34":25.71},{"year_month":"1957-01","year":1957,"month":1,"season":"DJF","nino34":26.04},{"year_month":"1957-02","year":1957,"month":2,"season":"DJF","nino34":26.54},{"year_month":"1957-03","year":1957,"month":3,"season":"MAM","nino34":27.46},{"year_month":"1957-04","year":1957,"month":4,"season":"MAM","nino34":28.23},{"year_month":"1957-05","year":1957,"month":5,"season":"MAM","nino34":28.55},{"year_month":"1957-06","year":1957,"month":6,"season":"JJA","nino34":28.36},{"year_month":"1957-07","year":1957,"month":7,"season":"JJA","nino34":28.17},{"year_month":"1957-08","year":1957,"month":8,"season":"JJA","nino34":27.69},{"year_month":"1957-09","year":1957,"month":9,"season":"SON","nino34":27.44},{"year_month":"1957-10","year":1957,"month":10,"season":"SON","nino34":27.42},{"year_month":"1957-11","year":1957,"month":11,"season":"SON","nino34":27.62},{"year_month":"1957-12","year":1957,"month":12,"season":"DJF","nino34":27.9},{"year_month":"1958-01","year":1958,"month":1,"season":"DJF","nino34":28.33},{"year_month":"1958-02","year":1958,"month":2,"season":"DJF","nino34":28.24},{"year_month":"1958-03","year":1958,"month":3,"season":"MAM","nino34":28.27},{"year_month":"1958-04","year":1958,"month":4,"season":"MAM","nino34":28.27},{"year_month":"1958-05","year":1958,"month":5,"season":"MAM","nino34":28.31},{"year_month":"1958-06","year":1958,"month":6,"season":"JJA","nino34":27.99},{"year_month":"1958-07","year":1958,"month":7,"season":"JJA","nino34":27.32},{"year_month":"1958-08","year":1958,"month":8,"season":"JJA","nino34":26.85},{"year_month":"1958-09","year":1958,"month":9,"season":"SON","nino34":26.4},{"year_month":"1958-10","year":1958,"month":10,"season":"SON","nino34":26.45},{"year_month":"1958-11","year":1958,"month":11,"season":"SON","nino34":26.75},{"year_month":"1958-12","year":1958,"month":12,"season":"DJF","nino34":26.62},{"year_month":"1959-01","year":1959,"month":1,"season":"DJF","nino34":27.07},{"year_month":"1959-02","year":1959,"month":2,"season":"DJF","nino34":27.18},{"year_month":"1959-03","year":1959,"month":3,"season":"MAM","nino34":27.47},{"year_month":"1959-04","year":1959,"month":4,"season":"MAM","nino34":27.88},{"year_month":"1959-05","year":1959,"month":5,"season":"MAM","nino34":27.7},{"year_month":"1959-06","year":1959,"month":6,"season":"JJA","nino34":27.37},{"year_month":"1959-07","year":1959,"month":7,"season":"JJA","nino34":26.44},{"year_month":"1959-08","year":1959,"month":8,"season":"JJA","nino34":26.09},{"year_month":"1959-09","year":1959,"month":9,"season":"SON","nino34":25.92},{"year_month":"1959-10","year":1959,"month":10,"season":"SON","nino34":26.24},{"year_month":"1959-11","year":1959,"month":11,"season":"SON","nino34":26.04},{"year_month":"1959-12","year":1959,"month":12,"season":"DJF","nino34":26.18},{"year_month":"1960-01","year":1960,"month":1,"season":"DJF","nino34":26.27},{"year_month":"1960-02","year":1960,"month":2,"season":"DJF","nino34":26.29},{"year_month":"1960-03","year":1960,"month":3,"season":"MAM","nino34":26.98},{"year_month":"1960-04","year":1960,"month":4,"season":"MAM","nino34":27.49},{"year_month":"1960-05","year":1960,"month":5,"season":"MAM","nino34":27.68},{"year_month":"1960-06","year":1960,"month":6,"season":"JJA","nino34":27.24},{"year_month":"1960-07","year":1960,"month":7,"season":"JJA","nino34":26.88},{"year_month":"1960-08","year":1960,"month":8,"season":"JJA","nino34":26.7},{"year_month":"1960-09","year":1960,"month":9,"season":"SON","nino34":26.44},{"year_month":"1960-10","year":1960,"month":10,"season":"SON","nino34":26.22},{"year_month":"1960-11","year":1960,"month":11,"season":"SON","nino34":26.26},{"year_month":"1960-12","year":1960,"month":12,"season":"DJF","nino34":26.22},{"year_month":"1961-01","year":1961,"month":1,"season":"DJF","nino34":26.23},{"year_month":"1961-02","year":1961,"month":2,"season":"DJF","nino34":26.56},{"year_month":"1961-03","year":1961,"month":3,"season":"MAM","nino34":26.94},{"year_month":"1961-04","year":1961,"month":4,"season":"MAM","nino34":27.36},{"year_month":"1961-05","year":1961,"month":5,"season":"MAM","nino34":27.75},{"year_month":"1961-06","year":1961,"month":6,"season":"JJA","nino34":27.67},{"year_month":"1961-07","year":1961,"month":7,"season":"JJA","nino34":26.89},{"year_month":"1961-08","year":1961,"month":8,"season":"JJA","nino34":26.19},{"year_month":"1961-09","year":1961,"month":9,"season":"SON","nino34":25.78},{"year_month":"1961-10","year":1961,"month":10,"season":"SON","nino34":25.71},{"year_month":"1961-11","year":1961,"month":11,"season":"SON","nino34":26.07},{"year_month":"1961-12","year":1961,"month":12,"season":"DJF","nino34":25.97},{"year_month":"1962-01","year":1962,"month":1,"season":"DJF","nino34":25.96},{"year_month":"1962-02","year":1962,"month":2,"season":"DJF","nino34":26.19},{"year_month":"1962-03","year":1962,"month":3,"season":"MAM","nino34":26.8},{"year_month":"1962-04","year":1962,"month":4,"season":"MAM","nino34":27.13},{"year_month":"1962-05","year":1962,"month":5,"season":"MAM","nino34":27.05},{"year_month":"1962-06","year":1962,"month":6,"season":"JJA","nino34":27.08},{"year_month":"1962-07","year":1962,"month":7,"season":"JJA","nino34":26.76},{"year_month":"1962-08","year":1962,"month":8,"season":"JJA","nino34":26.33},{"year_month":"1962-09","year":1962,"month":9,"season":"SON","nino34":25.94},{"year_month":"1962-10","year":1962,"month":10,"season":"SON","nino34":25.97},{"year_month":"1962-11","year":1962,"month":11,"season":"SON","nino34":25.75},{"year_month":"1962-12","year":1962,"month":12,"season":"DJF","nino34":25.67},{"year_month":"1963-01","year":1963,"month":1,"season":"DJF","nino34":25.77},{"year_month":"1963-02","year":1963,"month":2,"season":"DJF","nino34":26.22},{"year_month":"1963-03","year":1963,"month":3,"season":"MAM","nino34":27.18},{"year_month":"1963-04","year":1963,"month":4,"season":"MAM","nino34":27.78},{"year_month":"1963-05","year":1963,"month":5,"season":"MAM","nino34":27.63},{"year_month":"1963-06","year":1963,"month":6,"season":"JJA","nino34":27.62},{"year_month":"1963-07","year":1963,"month":7,"season":"JJA","nino34":27.78},{"year_month":"1963-08","year":1963,"month":8,"season":"JJA","nino34":27.48},{"year_month":"1963-09","year":1963,"month":9,"season":"SON","nino34":27.4},{"year_month":"1963-10","year":1963,"month":10,"season":"SON","nino34":27.36},{"year_month":"1963-11","year":1963,"month":11,"season":"SON","nino34":27.47},{"year_month":"1963-12","year":1963,"month":12,"season":"DJF","nino34":27.62},{"year_month":"1964-01","year":1964,"month":1,"season":"DJF","nino34":27.34},{"year_month":"1964-02","year":1964,"month":2,"season":"DJF","nino34":27.13},{"year_month":"1964-03","year":1964,"month":3,"season":"MAM","nino34":27.02},{"year_month":"1964-04","year":1964,"month":4,"season":"MAM","nino34":26.95},{"year_month":"1964-05","year":1964,"month":5,"season":"MAM","nino34":26.82},{"year_month":"1964-06","year":1964,"month":6,"season":"JJA","nino34":26.59},{"year_month":"1964-07","year":1964,"month":7,"season":"JJA","nino34":26.33},{"year_month":"1964-08","year":1964,"month":8,"season":"JJA","nino34":25.6},{"year_month":"1964-09","year":1964,"month":9,"season":"SON","nino34":25.32},{"year_month":"1964-10","year":1964,"month":10,"season":"SON","nino34":25.37},{"year_month":"1964-11","year":1964,"month":11,"season":"SON","nino34":25.26},{"year_month":"1964-12","year":1964,"month":12,"season":"DJF","nino34":25.23},{"year_month":"1965-01","year":1965,"month":1,"season":"DJF","nino34":25.66},{"year_month":"1965-02","year":1965,"month":2,"season":"DJF","nino34":26.19},{"year_month":"1965-03","year":1965,"month":3,"season":"MAM","nino34":26.94},{"year_month":"1965-04","year":1965,"month":4,"season":"MAM","nino34":27.38},{"year_month":"1965-05","year":1965,"month":5,"season":"MAM","nino34":27.99},{"year_month":"1965-06","year":1965,"month":6,"season":"JJA","nino34":28.09},{"year_month":"1965-07","year":1965,"month":7,"season":"JJA","nino34":27.9},{"year_month":"1965-08","year":1965,"month":8,"season":"JJA","nino34":27.97},{"year_month":"1965-09","year":1965,"month":9,"season":"SON","nino34":28.01},{"year_month":"1965-10","year":1965,"month":10,"season":"SON","nino34":28.17},{"year_month":"1965-11","year":1965,"month":11,"season":"SON","nino34":28.12},{"year_month":"1965-12","year":1965,"month":12,"season":"DJF","nino34":27.96},{"year_month":"1966-01","year":1966,"month":1,"season":"DJF","nino34":27.67},{"year_month":"1966-02","year":1966,"month":2,"season":"DJF","nino34":27.55},{"year_month":"1966-03","year":1966,"month":3,"season":"MAM","nino34":28.21},{"year_month":"1966-04","year":1966,"month":4,"season":"MAM","nino34":28.16},{"year_month":"1966-05","year":1966,"month":5,"season":"MAM","nino34":27.55},{"year_month":"1966-06","year":1966,"month":6,"season":"JJA","nino34":27.64},{"year_month":"1966-07","year":1966,"month":7,"season":"JJA","nino34":27.33},{"year_month":"1966-08","year":1966,"month":8,"season":"JJA","nino34":26.48},{"year_month":"1966-09","year":1966,"month":9,"season":"SON","nino34":26.27},{"year_month":"1966-10","year":1966,"month":10,"season":"SON","nino34":26.22},{"year_month":"1966-11","year":1966,"month":11,"season":"SON","nino34":26.23},{"year_month":"1966-12","year":1966,"month":12,"season":"DJF","nino34":26.03},{"year_month":"1967-01","year":1967,"month":1,"season":"DJF","nino34":25.88},{"year_month":"1967-02","year":1967,"month":2,"season":"DJF","nino34":26.11},{"year_month":"1967-03","year":1967,"month":3,"season":"MAM","nino34":26.5},{"year_month":"1967-04","year":1967,"month":4,"season":"MAM","nino34":26.74},{"year_month":"1967-05","year":1967,"month":5,"season":"MAM","nino34":27.35},{"year_month":"1967-06","year":1967,"month":6,"season":"JJA","nino34":27.47},{"year_month":"1967-07","year":1967,"month":7,"season":"JJA","nino34":26.97},{"year_month":"1967-08","year":1967,"month":8,"season":"JJA","nino34":26.44},{"year_month":"1967-09","year":1967,"month":9,"season":"SON","nino34":25.86},{"year_month":"1967-10","year":1967,"month":10,"season":"SON","nino34":25.97},{"year_month":"1967-11","year":1967,"month":11,"season":"SON","nino34":26.08},{"year_month":"1967-12","year":1967,"month":12,"season":"DJF","nino34":25.95},{"year_month":"1968-01","year":1968,"month":1,"season":"DJF","nino34":25.69},{"year_month":"1968-02","year":1968,"month":2,"season":"DJF","nino34":25.68},{"year_month":"1968-03","year":1968,"month":3,"season":"MAM","nino34":26.33},{"year_month":"1968-04","year":1968,"month":4,"season":"MAM","nino34":27.1},{"year_month":"1968-05","year":1968,"month":5,"season":"MAM","nino34":27.19},{"year_month":"1968-06","year":1968,"month":6,"season":"JJA","nino34":27.88},{"year_month":"1968-07","year":1968,"month":7,"season":"JJA","nino34":27.58},{"year_month":"1968-08","year":1968,"month":8,"season":"JJA","nino34":27.01},{"year_month":"1968-09","year":1968,"month":9,"season":"SON","nino34":26.72},{"year_month":"1968-10","year":1968,"month":10,"season":"SON","nino34":26.75},{"year_month":"1968-11","year":1968,"month":11,"season":"SON","nino34":27.2},{"year_month":"1968-12","year":1968,"month":12,"season":"DJF","nino34":27.27},{"year_month":"1969-01","year":1969,"month":1,"season":"DJF","nino34":27.5},{"year_month":"1969-02","year":1969,"month":2,"season":"DJF","nino34":27.86},{"year_month":"1969-03","year":1969,"month":3,"season":"MAM","nino34":27.82},{"year_month":"1969-04","year":1969,"month":4,"season":"MAM","nino34":28.13},{"year_month":"1969-05","year":1969,"month":5,"season":"MAM","nino34":28.29},{"year_month":"1969-06","year":1969,"month":6,"season":"JJA","nino34":27.69},{"year_month":"1969-07","year":1969,"month":7,"season":"JJA","nino34":27.08},{"year_month":"1969-08","year":1969,"month":8,"season":"JJA","nino34":27.02},{"year_month":"1969-09","year":1969,"month":9,"season":"SON","nino34":27.15},{"year_month":"1969-10","year":1969,"month":10,"season":"SON","nino34":27.34},{"year_month":"1969-11","year":1969,"month":11,"season":"SON","nino34":27.1},{"year_month":"1969-12","year":1969,"month":12,"season":"DJF","nino34":26.98},{"year_month":"1970-01","year":1970,"month":1,"season":"DJF","nino34":26.83},{"year_month":"1970-02","year":1970,"month":2,"season":"DJF","nino34":26.95},{"year_month":"1970-03","year":1970,"month":3,"season":"MAM","nino34":27.14},{"year_month":"1970-04","year":1970,"month":4,"season":"MAM","nino34":27.74},{"year_month":"1970-05","year":1970,"month":5,"season":"MAM","nino34":27.63},{"year_month":"1970-06","year":1970,"month":6,"season":"JJA","nino34":27.04},{"year_month":"1970-07","year":1970,"month":7,"season":"JJA","nino34":26.21},{"year_month":"1970-08","year":1970,"month":8,"season":"JJA","nino34":25.6},{"year_month":"1970-09","year":1970,"month":9,"season":"SON","nino34":25.65},{"year_month":"1970-10","year":1970,"month":10,"season":"SON","nino34":25.6},{"year_month":"1970-11","year":1970,"month":11,"season":"SON","nino34":25.57},{"year_month":"1970-12","year":1970,"month":12,"season":"DJF","nino34":25.27},{"year_month":"1971-01","year":1971,"month":1,"season":"DJF","nino34":24.81},{"year_month":"1971-02","year":1971,"month":2,"season":"DJF","nino34":25.18},{"year_month":"1971-03","year":1971,"month":3,"season":"MAM","nino34":25.92},{"year_month":"1971-04","year":1971,"month":4,"season":"MAM","nino34":26.63},{"year_month":"1971-05","year":1971,"month":5,"season":"MAM","nino34":26.95},{"year_month":"1971-06","year":1971,"month":6,"season":"JJA","nino34":26.6},{"year_month":"1971-07","year":1971,"month":7,"season":"JJA","nino34":26.13},{"year_month":"1971-08","year":1971,"month":8,"season":"JJA","nino34":25.75},{"year_month":"1971-09","year":1971,"month":9,"season":"SON","nino34":25.72},{"year_month":"1971-10","year":1971,"month":10,"season":"SON","nino34":25.47},{"year_month":"1971-11","year":1971,"month":11,"season":"SON","nino34":25.56},{"year_month":"1971-12","year":1971,"month":12,"season":"DJF","nino34":25.37},{"year_month":"1972-01","year":1972,"month":1,"season":"DJF","nino34":25.62},{"year_month":"1972-02","year":1972,"month":2,"season":"DJF","nino34":26.3},{"year_month":"1972-03","year":1972,"month":3,"season":"MAM","nino34":27.09},{"year_month":"1972-04","year":1972,"month":4,"season":"MAM","nino34":27.89},{"year_month":"1972-05","year":1972,"month":5,"season":"MAM","nino34":28.32},{"year_month":"1972-06","year":1972,"month":6,"season":"JJA","nino34":28.18},{"year_month":"1972-07","year":1972,"month":7,"season":"JJA","nino34":28.14},{"year_month":"1972-08","year":1972,"month":8,"season":"JJA","nino34":27.95},{"year_month":"1972-09","year":1972,"month":9,"season":"SON","nino34":27.95},{"year_month":"1972-10","year":1972,"month":10,"season":"SON","nino34":28.26},{"year_month":"1972-11","year":1972,"month":11,"season":"SON","nino34":28.61},{"year_month":"1972-12","year":1972,"month":12,"season":"DJF","nino34":28.69},{"year_month":"1973-01","year":1973,"month":1,"season":"DJF","nino34":28.34},{"year_month":"1973-02","year":1973,"month":2,"season":"DJF","nino34":27.95},{"year_month":"1973-03","year":1973,"month":3,"season":"MAM","nino34":27.55},{"year_month":"1973-04","year":1973,"month":4,"season":"MAM","nino34":27.24},{"year_month":"1973-05","year":1973,"month":5,"season":"MAM","nino34":26.96},{"year_month":"1973-06","year":1973,"month":6,"season":"JJA","nino34":26.55},{"year_month":"1973-07","year":1973,"month":7,"season":"JJA","nino34":25.76},{"year_month":"1973-08","year":1973,"month":8,"season":"JJA","nino34":25.22},{"year_month":"1973-09","year":1973,"month":9,"season":"SON","nino34":25.06},{"year_month":"1973-10","year":1973,"month":10,"season":"SON","nino34":24.73},{"year_month":"1973-11","year":1973,"month":11,"season":"SON","nino34":24.33},{"year_month":"1973-12","year":1973,"month":12,"season":"DJF","nino34":24.33},{"year_month":"1974-01","year":1974,"month":1,"season":"DJF","nino34":24.46},{"year_month":"1974-02","year":1974,"month":2,"season":"DJF","nino34":25.1},{"year_month":"1974-03","year":1974,"month":3,"season":"MAM","nino34":25.84},{"year_month":"1974-04","year":1974,"month":4,"season":"MAM","nino34":26.46},{"year_month":"1974-05","year":1974,"month":5,"season":"MAM","nino34":26.64},{"year_month":"1974-06","year":1974,"month":6,"season":"JJA","nino34":26.53},{"year_month":"1974-07","year":1974,"month":7,"season":"JJA","nino34":26.39},{"year_month":"1974-08","year":1974,"month":8,"season":"JJA","nino34":26.33},{"year_month":"1974-09","year":1974,"month":9,"season":"SON","nino34":26.08},{"year_month":"1974-10","year":1974,"month":10,"season":"SON","nino34":25.78},{"year_month":"1974-11","year":1974,"month":11,"season":"SON","nino34":25.61},{"year_month":"1974-12","year":1974,"month":12,"season":"DJF","nino34":25.63},{"year_month":"1975-01","year":1975,"month":1,"season":"DJF","nino34":26.09},{"year_month":"1975-02","year":1975,"month":2,"season":"DJF","nino34":26.07},{"year_month":"1975-03","year":1975,"month":3,"season":"MAM","nino34":26.19},{"year_month":"1975-04","year":1975,"month":4,"season":"MAM","nino34":26.86},{"year_month":"1975-05","year":1975,"month":5,"season":"MAM","nino34":26.8},{"year_month":"1975-06","year":1975,"month":6,"season":"JJA","nino34":26.23},{"year_month":"1975-07","year":1975,"month":7,"season":"JJA","nino34":25.9},{"year_month":"1975-08","year":1975,"month":8,"season":"JJA","nino34":25.33},{"year_month":"1975-09","year":1975,"month":9,"season":"SON","nino34":25.05},{"year_month":"1975-10","year":1975,"month":10,"season":"SON","nino34":24.89},{"year_month":"1975-11","year":1975,"month":11,"season":"SON","nino34":25.05},{"year_month":"1975-12","year":1975,"month":12,"season":"DJF","nino34":24.67},{"year_month":"1976-01","year":1976,"month":1,"season":"DJF","nino34":24.54},{"year_month":"1976-02","year":1976,"month":2,"season":"DJF","nino34":25.49},{"year_month":"1976-03","year":1976,"month":3,"season":"MAM","nino34":26.46},{"year_month":"1976-04","year":1976,"month":4,"season":"MAM","nino34":26.88},{"year_month":"1976-05","year":1976,"month":5,"season":"MAM","nino34":27.2},{"year_month":"1976-06","year":1976,"month":6,"season":"JJA","nino34":27.35},{"year_month":"1976-07","year":1976,"month":7,"season":"JJA","nino34":27.13},{"year_month":"1976-08","year":1976,"month":8,"season":"JJA","nino34":26.98},{"year_month":"1976-09","year":1976,"month":9,"season":"SON","nino34":27.02},{"year_month":"1976-10","year":1976,"month":10,"season":"SON","nino34":27.46},{"year_month":"1976-11","year":1976,"month":11,"season":"SON","nino34":27.41},{"year_month":"1976-12","year":1976,"month":12,"season":"DJF","nino34":27.09},{"year_month":"1977-01","year":1977,"month":1,"season":"DJF","nino34":27.32},{"year_month":"1977-02","year":1977,"month":2,"season":"DJF","nino34":27.13},{"year_month":"1977-03","year":1977,"month":3,"season":"MAM","nino34":27.47},{"year_month":"1977-04","year":1977,"month":4,"season":"MAM","nino34":27.44},{"year_month":"1977-05","year":1977,"month":5,"season":"MAM","nino34":27.72},{"year_month":"1977-06","year":1977,"month":6,"season":"JJA","nino34":27.74},{"year_month":"1977-07","year":1977,"month":7,"season":"JJA","nino34":27.38},{"year_month":"1977-08","year":1977,"month":8,"season":"JJA","nino34":26.85},{"year_month":"1977-09","year":1977,"month":9,"season":"SON","nino34":27.12},{"year_month":"1977-10","year":1977,"month":10,"season":"SON","nino34":27.35},{"year_month":"1977-11","year":1977,"month":11,"season":"SON","nino34":27.19},{"year_month":"1977-12","year":1977,"month":12,"season":"DJF","nino34":27.29},{"year_month":"1978-01","year":1978,"month":1,"season":"DJF","nino34":27.17},{"year_month":"1978-02","year":1978,"month":2,"season":"DJF","nino34":27.0},{"year_month":"1978-03","year":1978,"month":3,"season":"MAM","nino34":27.09},{"year_month":"1978-04","year":1978,"month":4,"season":"MAM","nino34":27.12},{"year_month":"1978-05","year":1978,"month":5,"season":"MAM","nino34":27.2},{"year_month":"1978-06","year":1978,"month":6,"season":"JJA","nino34":27.02},{"year_month":"1978-07","year":1978,"month":7,"season":"JJA","nino34":26.74},{"year_month":"1978-08","year":1978,"month":8,"season":"JJA","nino34":26.07},{"year_month":"1978-09","year":1978,"month":9,"season":"SON","nino34":26.01},{"year_month":"1978-10","year":1978,"month":10,"season":"SON","nino34":26.25},{"year_month":"1978-11","year":1978,"month":11,"season":"SON","nino34":26.33},{"year_month":"1978-12","year":1978,"month":12,"season":"DJF","nino34":26.54},{"year_month":"1979-01","year":1979,"month":1,"season":"DJF","nino34":26.41},{"year_month":"1979-02","year":1979,"month":2,"season":"DJF","nino34":26.53},{"year_month":"1979-03","year":1979,"month":3,"season":"MAM","nino34":27.27},{"year_month":"1979-04","year":1979,"month":4,"season":"MAM","nino34":27.83},{"year_month":"1979-05","year":1979,"month":5,"season":"MAM","nino34":27.69},{"year_month":"1979-06","year":1979,"month":6,"season":"JJA","nino34":27.43},{"year_month":"1979-07","year":1979,"month":7,"season":"JJA","nino34":26.82},{"year_month":"1979-08","year":1979,"month":8,"season":"JJA","nino34":26.75},{"year_month":"1979-09","year":1979,"month":9,"season":"SON","nino34":26.99},{"year_month":"1979-10","year":1979,"month":10,"season":"SON","nino34":26.83},{"year_month":"1979-11","year":1979,"month":11,"season":"SON","nino34":26.99},{"year_month":"1979-12","year":1979,"month":12,"season":"DJF","nino34":27.11},{"year_month":"1980-01","year":1980,"month":1,"season":"DJF","nino34":27.08},{"year_month":"1980-02","year":1980,"month":2,"season":"DJF","nino34":26.97},{"year_month":"1980-03","year":1980,"month":3,"season":"MAM","nino34":27.31},{"year_month":"1980-04","year":1980,"month":4,"season":"MAM","nino34":27.75},{"year_month":"1980-05","year":1980,"month":5,"season":"MAM","nino34":28.01},{"year_month":"1980-06","year":1980,"month":6,"season":"JJA","nino34":27.94},{"year_month":"1980-07","year":1980,"month":7,"season":"JJA","nino34":27.23},{"year_month":"1980-08","year":1980,"month":8,"season":"JJA","nino34":26.48},{"year_month":"1980-09","year":1980,"month":9,"season":"SON","nino34":26.44},{"year_month":"1980-10","year":1980,"month":10,"season":"SON","nino34":26.46},{"year_month":"1980-11","year":1980,"month":11,"season":"SON","nino34":26.6},{"year_month":"1980-12","year":1980,"month":12,"season":"DJF","nino34":26.65},{"year_month":"1981-01","year":1981,"month":1,"season":"DJF","nino34":26.18},{"year_month":"1981-02","year":1981,"month":2,"season":"DJF","nino34":26.11},{"year_month":"1981-03","year":1981,"month":3,"season":"MAM","nino34":26.64},{"year_month":"1981-04","year":1981,"month":4,"season":"MAM","nino34":27.29},{"year_month":"1981-05","year":1981,"month":5,"season":"MAM","nino34":27.36},{"year_month":"1981-06","year":1981,"month":6,"season":"JJA","nino34":27.27},{"year_month":"1981-07","year":1981,"month":7,"season":"JJA","nino34":26.65},{"year_month":"1981-08","year":1981,"month":8,"season":"JJA","nino34":26.33},{"year_month":"1981-09","year":1981,"month":9,"season":"SON","nino34":26.53},{"year_month":"1981-10","year":1981,"month":10,"season":"SON","nino34":26.42},{"year_month":"1981-11","year":1981,"month":11,"season":"SON","nino34":26.29},{"year_month":"1981-12","year":1981,"month":12,"season":"DJF","nino34":26.4},{"year_month":"1982-01","year":1982,"month":1,"season":"DJF","nino34":26.67},{"year_month":"1982-02","year":1982,"month":2,"season":"DJF","nino34":26.59},{"year_month":"1982-03","year":1982,"month":3,"season":"MAM","nino34":27.41},{"year_month":"1982-04","year":1982,"month":4,"season":"MAM","nino34":28.03},{"year_month":"1982-05","year":1982,"month":5,"season":"MAM","nino34":28.39},{"year_month":"1982-06","year":1982,"month":6,"season":"JJA","nino34":28.26},{"year_month":"1982-07","year":1982,"month":7,"season":"JJA","nino34":27.66},{"year_month":"1982-08","year":1982,"month":8,"season":"JJA","nino34":27.58},{"year_month":"1982-09","year":1982,"month":9,"season":"SON","nino34":28.21},{"year_month":"1982-10","year":1982,"month":10,"season":"SON","nino34":28.71},{"year_month":"1982-11","year":1982,"month":11,"season":"SON","nino34":28.62},{"year_month":"1982-12","year":1982,"month":12,"season":"DJF","nino34":28.8},{"year_month":"1983-01","year":1983,"month":1,"season":"DJF","nino34":28.89},{"year_month":"1983-02","year":1983,"month":2,"season":"DJF","nino34":28.69},{"year_month":"1983-03","year":1983,"month":3,"season":"MAM","nino34":28.66},{"year_month":"1983-04","year":1983,"month":4,"season":"MAM","nino34":28.77},{"year_month":"1983-05","year":1983,"month":5,"season":"MAM","nino34":28.84},{"year_month":"1983-06","year":1983,"month":6,"season":"JJA","nino34":28.27},{"year_month":"1983-07","year":1983,"month":7,"season":"JJA","nino34":27.18},{"year_month":"1983-08","year":1983,"month":8,"season":"JJA","nino34":26.59},{"year_month":"1983-09","year":1983,"month":9,"season":"SON","nino34":26.2},{"year_month":"1983-10","year":1983,"month":10,"season":"SON","nino34":25.56},{"year_month":"1983-11","year":1983,"month":11,"season":"SON","nino34":25.41},{"year_month":"1983-12","year":1983,"month":12,"season":"DJF","nino34":25.57},{"year_month":"1984-01","year":1984,"month":1,"season":"DJF","nino34":25.88},{"year_month":"1984-02","year":1984,"month":2,"season":"DJF","nino34":26.56},{"year_month":"1984-03","year":1984,"month":3,"season":"MAM","nino34":26.77},{"year_month":"1984-04","year":1984,"month":4,"season":"MAM","nino34":27.14},{"year_month":"1984-05","year":1984,"month":5,"season":"MAM","nino34":27.2},{"year_month":"1984-06","year":1984,"month":6,"season":"JJA","nino34":26.83},{"year_month":"1984-07","year":1984,"month":7,"season":"JJA","nino34":26.79},{"year_month":"1984-08","year":1984,"month":8,"season":"JJA","nino34":26.61},{"year_month":"1984-09","year":1984,"month":9,"season":"SON","nino34":26.38},{"year_month":"1984-10","year":1984,"month":10,"season":"SON","nino34":26.04},{"year_month":"1984-11","year":1984,"month":11,"season":"SON","nino34":25.52},{"year_month":"1984-12","year":1984,"month":12,"season":"DJF","nino34":25.25},{"year_month":"1985-01","year":1985,"month":1,"season":"DJF","nino34":25.38},{"year_month":"1985-02","year":1985,"month":2,"season":"DJF","nino34":26.03},{"year_month":"1985-03","year":1985,"month":3,"season":"MAM","nino34":26.5},{"year_month":"1985-04","year":1985,"month":4,"season":"MAM","nino34":26.64},{"year_month":"1985-05","year":1985,"month":5,"season":"MAM","nino34":26.9},{"year_month":"1985-06","year":1985,"month":6,"season":"JJA","nino34":26.81},{"year_month":"1985-07","year":1985,"month":7,"season":"JJA","nino34":26.56},{"year_month":"1985-08","year":1985,"month":8,"season":"JJA","nino34":26.3},{"year_month":"1985-09","year":1985,"month":9,"season":"SON","nino34":26.02},{"year_month":"1985-10","year":1985,"month":10,"season":"SON","nino34":26.23},{"year_month":"1985-11","year":1985,"month":11,"season":"SON","nino34":26.33},{"year_month":"1985-12","year":1985,"month":12,"season":"DJF","nino34":26.19},{"year_month":"1986-01","year":1986,"month":1,"season":"DJF","nino34":25.89},{"year_month":"1986-02","year":1986,"month":2,"season":"DJF","nino34":26.05},{"year_month":"1986-03","year":1986,"month":3,"season":"MAM","nino34":26.87},{"year_month":"1986-04","year":1986,"month":4,"season":"MAM","nino34":27.49},{"year_month":"1986-05","year":1986,"month":5,"season":"MAM","nino34":27.4},{"year_month":"1986-06","year":1986,"month":6,"season":"JJA","nino34":27.42},{"year_month":"1986-07","year":1986,"month":7,"season":"JJA","nino34":27.18},{"year_month":"1986-08","year":1986,"month":8,"season":"JJA","nino34":27.17},{"year_month":"1986-09","year":1986,"month":9,"season":"SON","nino34":27.24},{"year_month":"1986-10","year":1986,"month":10,"season":"SON","nino34":27.53},{"year_month":"1986-11","year":1986,"month":11,"season":"SON","nino34":27.71},{"year_month":"1986-12","year":1986,"month":12,"season":"DJF","nino34":27.72},{"year_month":"1987-01","year":1987,"month":1,"season":"DJF","nino34":27.68},{"year_month":"1987-02","year":1987,"month":2,"season":"DJF","nino34":27.88},{"year_month":"1987-03","year":1987,"month":3,"season":"MAM","nino34":28.27},{"year_month":"1987-04","year":1987,"month":4,"season":"MAM","nino34":28.39},{"year_month":"1987-05","year":1987,"month":5,"season":"MAM","nino34":28.56},{"year_month":"1987-06","year":1987,"month":6,"season":"JJA","nino34":28.65},{"year_month":"1987-07","year":1987,"month":7,"season":"JJA","nino34":28.59},{"year_month":"1987-08","year":1987,"month":8,"season":"JJA","nino34":28.42},{"year_month":"1987-09","year":1987,"month":9,"season":"SON","nino34":28.36},{"year_month":"1987-10","year":1987,"month":10,"season":"SON","nino34":27.96},{"year_month":"1987-11","year":1987,"month":11,"season":"SON","nino34":27.77},{"year_month":"1987-12","year":1987,"month":12,"season":"DJF","nino34":27.54},{"year_month":"1988-01","year":1988,"month":1,"season":"DJF","nino34":27.45},{"year_month":"1988-02","year":1988,"month":2,"season":"DJF","nino34":27.03},{"year_month":"1988-03","year":1988,"month":3,"season":"MAM","nino34":27.38},{"year_month":"1988-04","year":1988,"month":4,"season":"MAM","nino34":27.38},{"year_month":"1988-05","year":1988,"month":5,"season":"MAM","nino34":26.68},{"year_month":"1988-06","year":1988,"month":6,"season":"JJA","nino34":25.99},{"year_month":"1988-07","year":1988,"month":7,"season":"JJA","nino34":25.56},{"year_month":"1988-08","year":1988,"month":8,"season":"JJA","nino34":25.66},{"year_month":"1988-09","year":1988,"month":9,"season":"SON","nino34":25.72},{"year_month":"1988-10","year":1988,"month":10,"season":"SON","nino34":24.82},{"year_month":"1988-11","year":1988,"month":11,"season":"SON","nino34":24.65},{"year_month":"1988-12","year":1988,"month":12,"season":"DJF","nino34":24.63},{"year_month":"1989-01","year":1989,"month":1,"season":"DJF","nino34":24.58},{"year_month":"1989-02","year":1989,"month":2,"season":"DJF","nino34":25.28},{"year_month":"1989-03","year":1989,"month":3,"season":"MAM","nino34":26.08},{"year_month":"1989-04","year":1989,"month":4,"season":"MAM","nino34":26.74},{"year_month":"1989-05","year":1989,"month":5,"season":"MAM","nino34":27.06},{"year_month":"1989-06","year":1989,"month":6,"season":"JJA","nino34":27.14},{"year_month":"1989-07","year":1989,"month":7,"season":"JJA","nino34":26.72},{"year_month":"1989-08","year":1989,"month":8,"season":"JJA","nino34":26.33},{"year_month":"1989-09","year":1989,"month":9,"season":"SON","nino34":26.42},{"year_month":"1989-10","year":1989,"month":10,"season":"SON","nino34":26.32},{"year_month":"1989-11","year":1989,"month":11,"season":"SON","nino34":26.25},{"year_month":"1989-12","year":1989,"month":12,"season":"DJF","nino34":26.46},{"year_month":"1990-01","year":1990,"month":1,"season":"DJF","nino34":26.56},{"year_month":"1990-02","year":1990,"month":2,"season":"DJF","nino34":26.96},{"year_month":"1990-03","year":1990,"month":3,"season":"MAM","nino34":27.33},{"year_month":"1990-04","year":1990,"month":4,"season":"MAM","nino34":27.9},{"year_month":"1990-05","year":1990,"month":5,"season":"MAM","nino34":28.02},{"year_month":"1990-06","year":1990,"month":6,"season":"JJA","nino34":27.64},{"year_month":"1990-07","year":1990,"month":7,"season":"JJA","nino34":27.38},{"year_month":"1990-08","year":1990,"month":8,"season":"JJA","nino34":27.07},{"year_month":"1990-09","year":1990,"month":9,"season":"SON","nino34":26.94},{"year_month":"1990-10","year":1990,"month":10,"season":"SON","nino34":26.93},{"year_month":"1990-11","year":1990,"month":11,"season":"SON","nino34":26.81},{"year_month":"1990-12","year":1990,"month":12,"season":"DJF","nino34":26.95},{"year_month":"1991-01","year":1991,"month":1,"season":"DJF","nino34":27.03},{"year_month":"1991-02","year":1991,"month":2,"season":"DJF","nino34":27.07},{"year_month":"1991-03","year":1991,"month":3,"season":"MAM","nino34":27.32},{"year_month":"1991-04","year":1991,"month":4,"season":"MAM","nino34":28.01},{"year_month":"1991-05","year":1991,"month":5,"season":"MAM","nino34":28.2},{"year_month":"1991-06","year":1991,"month":6,"season":"JJA","nino34":28.25},{"year_month":"1991-07","year":1991,"month":7,"season":"JJA","nino34":28.05},{"year_month":"1991-08","year":1991,"month":8,"season":"JJA","nino34":27.53},{"year_month":"1991-09","year":1991,"month":9,"season":"SON","nino34":27.14},{"year_month":"1991-10","year":1991,"month":10,"season":"SON","nino34":27.58},{"year_month":"1991-11","year":1991,"month":11,"season":"SON","nino34":27.9},{"year_month":"1991-12","year":1991,"month":12,"season":"DJF","nino34":28.29},{"year_month":"1992-01","year":1992,"month":1,"season":"DJF","nino34":28.38},{"year_month":"1992-02","year":1992,"month":2,"season":"DJF","nino34":28.53},{"year_month":"1992-03","year":1992,"month":3,"season":"MAM","nino34":28.66},{"year_month":"1992-04","year":1992,"month":4,"season":"MAM","nino34":29.02},{"year_month":"1992-05","year":1992,"month":5,"season":"MAM","nino34":28.98},{"year_month":"1992-06","year":1992,"month":6,"season":"JJA","nino34":28.3},{"year_month":"1992-07","year":1992,"month":7,"season":"JJA","nino34":27.51},{"year_month":"1992-08","year":1992,"month":8,"season":"JJA","nino34":26.91},{"year_month":"1992-09","year":1992,"month":9,"season":"SON","nino34":26.65},{"year_month":"1992-10","year":1992,"month":10,"season":"SON","nino34":26.42},{"year_month":"1992-11","year":1992,"month":11,"season":"SON","nino34":26.42},{"year_month":"1992-12","year":1992,"month":12,"season":"DJF","nino34":26.44},{"year_month":"1993-01","year":1993,"month":1,"season":"DJF","nino34":26.69},{"year_month":"1993-02","year":1993,"month":2,"season":"DJF","nino34":27.16},{"year_month":"1993-03","year":1993,"month":3,"season":"MAM","nino34":27.67},{"year_month":"1993-04","year":1993,"month":4,"season":"MAM","nino34":28.41},{"year_month":"1993-05","year":1993,"month":5,"season":"MAM","nino34":28.71},{"year_month":"1993-06","year":1993,"month":6,"season":"JJA","nino34":28.08},{"year_month":"1993-07","year":1993,"month":7,"season":"JJA","nino34":27.52},{"year_month":"1993-08","year":1993,"month":8,"season":"JJA","nino34":26.99},{"year_month":"1993-09","year":1993,"month":9,"season":"SON","nino34":27.07},{"year_month":"1993-10","year":1993,"month":10,"season":"SON","nino34":26.77},{"year_month":"1993-11","year":1993,"month":11,"season":"SON","nino34":26.71},{"year_month":"1993-12","year":1993,"month":12,"season":"DJF","nino34":26.76},{"year_month":"1994-01","year":1994,"month":1,"season":"DJF","nino34":26.64},{"year_month":"1994-02","year":1994,"month":2,"season":"DJF","nino34":26.81},{"year_month":"1994-03","year":1994,"month":3,"season":"MAM","nino34":27.39},{"year_month":"1994-04","year":1994,"month":4,"season":"MAM","nino34":28.08},{"year_month":"1994-05","year":1994,"month":5,"season":"MAM","nino34":28.24},{"year_month":"1994-06","year":1994,"month":6,"season":"JJA","nino34":28.04},{"year_month":"1994-07","year":1994,"month":7,"season":"JJA","nino34":27.54},{"year_month":"1994-08","year":1994,"month":8,"season":"JJA","nino34":27.38},{"year_month":"1994-09","year":1994,"month":9,"season":"SON","nino34":27.2},{"year_month":"1994-10","year":1994,"month":10,"season":"SON","nino34":27.47},{"year_month":"1994-11","year":1994,"month":11,"season":"SON","nino34":27.81},{"year_month":"1994-12","year":1994,"month":12,"season":"DJF","nino34":27.85},{"year_month":"1995-01","year":1995,"month":1,"season":"DJF","nino34":27.57},{"year_month":"1995-02","year":1995,"month":2,"season":"DJF","nino34":27.49},{"year_month":"1995-03","year":1995,"month":3,"season":"MAM","nino34":27.75},{"year_month":"1995-04","year":1995,"month":4,"season":"MAM","nino34":28.1},{"year_month":"1995-05","year":1995,"month":5,"season":"MAM","nino34":27.82},{"year_month":"1995-06","year":1995,"month":6,"season":"JJA","nino34":27.59},{"year_month":"1995-07","year":1995,"month":7,"season":"JJA","nino34":27.08},{"year_month":"1995-08","year":1995,"month":8,"season":"JJA","nino34":26.23},{"year_month":"1995-09","year":1995,"month":9,"season":"SON","nino34":25.88},{"year_month":"1995-10","year":1995,"month":10,"season":"SON","nino34":25.84},{"year_month":"1995-11","year":1995,"month":11,"season":"SON","nino34":25.6},{"year_month":"1995-12","year":1995,"month":12,"season":"DJF","nino34":25.65},{"year_month":"1996-01","year":1996,"month":1,"season":"DJF","nino34":25.69},{"year_month":"1996-02","year":1996,"month":2,"season":"DJF","nino34":25.89},{"year_month":"1996-03","year":1996,"month":3,"season":"MAM","nino34":26.67},{"year_month":"1996-04","year":1996,"month":4,"season":"MAM","nino34":27.35},{"year_month":"1996-05","year":1996,"month":5,"season":"MAM","nino34":27.55},{"year_month":"1996-06","year":1996,"month":6,"season":"JJA","nino34":27.29},{"year_month":"1996-07","year":1996,"month":7,"season":"JJA","nino34":26.85},{"year_month":"1996-08","year":1996,"month":8,"season":"JJA","nino34":26.64},{"year_month":"1996-09","year":1996,"month":9,"season":"SON","nino34":26.27},{"year_month":"1996-10","year":1996,"month":10,"season":"SON","nino34":26.27},{"year_month":"1996-11","year":1996,"month":11,"season":"SON","nino34":26.29},{"year_month":"1996-12","year":1996,"month":12,"season":"DJF","nino34":25.95},{"year_month":"1997-01","year":1997,"month":1,"season":"DJF","nino34":26.01},{"year_month":"1997-02","year":1997,"month":2,"season":"DJF","nino34":26.38},{"year_month":"1997-03","year":1997,"month":3,"season":"MAM","nino34":27.04},{"year_month":"1997-04","year":1997,"month":4,"season":"MAM","nino34":27.98},{"year_month":"1997-05","year":1997,"month":5,"season":"MAM","nino34":28.58},{"year_month":"1997-06","year":1997,"month":6,"season":"JJA","nino34":28.82},{"year_month":"1997-07","year":1997,"month":7,"season":"JJA","nino34":28.86},{"year_month":"1997-08","year":1997,"month":8,"season":"JJA","nino34":28.75},{"year_month":"1997-09","year":1997,"month":9,"season":"SON","nino34":28.85},{"year_month":"1997-10","year":1997,"month":10,"season":"SON","nino34":29.08},{"year_month":"1997-11","year":1997,"month":11,"season":"SON","nino34":29.12},{"year_month":"1997-12","year":1997,"month":12,"season":"DJF","nino34":28.89},{"year_month":"1998-01","year":1998,"month":1,"season":"DJF","nino34":28.93},{"year_month":"1998-02","year":1998,"month":2,"season":"DJF","nino34":28.78},{"year_month":"1998-03","year":1998,"month":3,"season":"MAM","nino34":28.62},{"year_month":"1998-04","year":1998,"month":4,"season":"MAM","nino34":28.6},{"year_month":"1998-05","year":1998,"month":5,"season":"MAM","nino34":28.51},{"year_month":"1998-06","year":1998,"month":6,"season":"JJA","nino34":27.34},{"year_month":"1998-07","year":1998,"month":7,"season":"JJA","nino34":26.3},{"year_month":"1998-08","year":1998,"month":8,"season":"JJA","nino34":25.57},{"year_month":"1998-09","year":1998,"month":9,"season":"SON","nino34":25.46},{"year_month":"1998-10","year":1998,"month":10,"season":"SON","nino34":25.25},{"year_month":"1998-11","year":1998,"month":11,"season":"SON","nino34":25.24},{"year_month":"1998-12","year":1998,"month":12,"season":"DJF","nino34":24.91},{"year_month":"1999-01","year":1999,"month":1,"season":"DJF","nino34":24.86},{"year_month":"1999-02","year":1999,"month":2,"season":"DJF","nino34":25.43},{"year_month":"1999-03","year":1999,"month":3,"season":"MAM","nino34":26.33},{"year_month":"1999-04","year":1999,"month":4,"season":"MAM","nino34":26.7},{"year_month":"1999-05","year":1999,"month":5,"season":"MAM","nino34":26.79},{"year_month":"1999-06","year":1999,"month":6,"season":"JJA","nino34":26.53},{"year_month":"1999-07","year":1999,"month":7,"season":"JJA","nino34":26.13},{"year_month":"1999-08","year":1999,"month":8,"season":"JJA","nino34":25.63},{"year_month":"1999-09","year":1999,"month":9,"season":"SON","nino34":25.63},{"year_month":"1999-10","year":1999,"month":10,"season":"SON","nino34":25.48},{"year_month":"1999-11","year":1999,"month":11,"season":"SON","nino34":25.12},{"year_month":"1999-12","year":1999,"month":12,"season":"DJF","nino34":24.86},{"year_month":"2000-01","year":2000,"month":1,"season":"DJF","nino34":24.78},{"year_month":"2000-02","year":2000,"month":2,"season":"DJF","nino34":25.21},{"year_month":"2000-03","year":2000,"month":3,"season":"MAM","nino34":26.3},{"year_month":"2000-04","year":2000,"month":4,"season":"MAM","nino34":26.95},{"year_month":"2000-05","year":2000,"month":5,"season":"MAM","nino34":27.07},{"year_month":"2000-06","year":2000,"month":6,"season":"JJA","nino34":26.94},{"year_month":"2000-07","year":2000,"month":7,"season":"JJA","nino34":26.63},{"year_month":"2000-08","year":2000,"month":8,"season":"JJA","nino34":26.37},{"year_month":"2000-09","year":2000,"month":9,"season":"SON","nino34":26.2},{"year_month":"2000-10","year":2000,"month":10,"season":"SON","nino34":26.02},{"year_month":"2000-11","year":2000,"month":11,"season":"SON","nino34":25.92},{"year_month":"2000-12","year":2000,"month":12,"season":"DJF","nino34":25.68},{"year_month":"2001-01","year":2001,"month":1,"season":"DJF","nino34":25.81},{"year_month":"2001-02","year":2001,"month":2,"season":"DJF","nino34":26.12},{"year_month":"2001-03","year":2001,"month":3,"season":"MAM","nino34":26.8},{"year_month":"2001-04","year":2001,"month":4,"season":"MAM","nino34":27.33},{"year_month":"2001-05","year":2001,"month":5,"season":"MAM","nino34":27.6},{"year_month":"2001-06","year":2001,"month":6,"season":"JJA","nino34":27.54},{"year_month":"2001-07","year":2001,"month":7,"season":"JJA","nino34":27.25},{"year_month":"2001-08","year":2001,"month":8,"season":"JJA","nino34":26.8},{"year_month":"2001-09","year":2001,"month":9,"season":"SON","nino34":26.52},{"year_month":"2001-10","year":2001,"month":10,"season":"SON","nino34":26.57},{"year_month":"2001-11","year":2001,"month":11,"season":"SON","nino34":26.33},{"year_month":"2001-12","year":2001,"month":12,"season":"DJF","nino34":26.19},{"year_month":"2002-01","year":2002,"month":1,"season":"DJF","nino34":26.39},{"year_month":"2002-02","year":2002,"month":2,"season":"DJF","nino34":26.71},{"year_month":"2002-03","year":2002,"month":3,"season":"MAM","nino34":27.29},{"year_month":"2002-04","year":2002,"month":4,"season":"MAM","nino34":27.84},{"year_month":"2002-05","year":2002,"month":5,"season":"MAM","nino34":28.24},{"year_month":"2002-06","year":2002,"month":6,"season":"JJA","nino34":28.44},{"year_month":"2002-07","year":2002,"month":7,"season":"JJA","nino34":28.03},{"year_month":"2002-08","year":2002,"month":8,"season":"JJA","nino34":27.72},{"year_month":"2002-09","year":2002,"month":9,"season":"SON","nino34":27.81},{"year_month":"2002-10","year":2002,"month":10,"season":"SON","nino34":27.96},{"year_month":"2002-11","year":2002,"month":11,"season":"SON","nino34":28.17},{"year_month":"2002-12","year":2002,"month":12,"season":"DJF","nino34":27.97},{"year_month":"2003-01","year":2003,"month":1,"season":"DJF","nino34":27.15},{"year_month":"2003-02","year":2003,"month":2,"season":"DJF","nino34":27.39},{"year_month":"2003-03","year":2003,"month":3,"season":"MAM","nino34":27.65},{"year_month":"2003-04","year":2003,"month":4,"season":"MAM","nino34":27.68},{"year_month":"2003-05","year":2003,"month":5,"season":"MAM","nino34":27.32},{"year_month":"2003-06","year":2003,"month":6,"season":"JJA","nino34":27.44},{"year_month":"2003-07","year":2003,"month":7,"season":"JJA","nino34":27.5},{"year_month":"2003-08","year":2003,"month":8,"season":"JJA","nino34":27.11},{"year_month":"2003-09","year":2003,"month":9,"season":"SON","nino34":26.99},{"year_month":"2003-10","year":2003,"month":10,"season":"SON","nino34":27.14},{"year_month":"2003-11","year":2003,"month":11,"season":"SON","nino34":27.04},{"year_month":"2003-12","year":2003,"month":12,"season":"DJF","nino34":27.03},{"year_month":"2004-01","year":2004,"month":1,"season":"DJF","nino34":26.81},{"year_month":"2004-02","year":2004,"month":2,"season":"DJF","nino34":26.98},{"year_month":"2004-03","year":2004,"month":3,"season":"MAM","nino34":27.4},{"year_month":"2004-04","year":2004,"month":4,"season":"MAM","nino34":27.89},{"year_month":"2004-05","year":2004,"month":5,"season":"MAM","nino34":28.0},{"year_month":"2004-06","year":2004,"month":6,"season":"JJA","nino34":27.86},{"year_month":"2004-07","year":2004,"month":7,"season":"JJA","nino34":27.78},{"year_month":"2004-08","year":2004,"month":8,"season":"JJA","nino34":27.62},{"year_month":"2004-09","year":2004,"month":9,"season":"SON","nino34":27.53},{"year_month":"2004-10","year":2004,"month":10,"season":"SON","nino34":27.44},{"year_month":"2004-11","year":2004,"month":11,"season":"SON","nino34":27.36},{"year_month":"2004-12","year":2004,"month":12,"season":"DJF","nino34":27.34},{"year_month":"2005-01","year":2005,"month":1,"season":"DJF","nino34":27.21},{"year_month":"2005-02","year":2005,"month":2,"season":"DJF","nino34":27.11},{"year_month":"2005-03","year":2005,"month":3,"season":"MAM","nino34":27.73},{"year_month":"2005-04","year":2005,"month":4,"season":"MAM","nino34":28.08},{"year_month":"2005-05","year":2005,"month":5,"season":"MAM","nino34":28.24},{"year_month":"2005-06","year":2005,"month":6,"season":"JJA","nino34":27.77},{"year_month":"2005-07","year":2005,"month":7,"season":"JJA","nino34":27.06},{"year_month":"2005-08","year":2005,"month":8,"season":"JJA","nino34":26.8},{"year_month":"2005-09","year":2005,"month":9,"season":"SON","nino34":26.68},{"year_month":"2005-10","year":2005,"month":10,"season":"SON","nino34":26.65},{"year_month":"2005-11","year":2005,"month":11,"season":"SON","nino34":26.11},{"year_month":"2005-12","year":2005,"month":12,"season":"DJF","nino34":25.68},{"year_month":"2006-01","year":2006,"month":1,"season":"DJF","nino34":25.63},{"year_month":"2006-02","year":2006,"month":2,"season":"DJF","nino34":26.08},{"year_month":"2006-03","year":2006,"month":3,"season":"MAM","nino34":26.57},{"year_month":"2006-04","year":2006,"month":4,"season":"MAM","nino34":27.5},{"year_month":"2006-05","year":2006,"month":5,"season":"MAM","nino34":27.85},{"year_month":"2006-06","year":2006,"month":6,"season":"JJA","nino34":27.73},{"year_month":"2006-07","year":2006,"month":7,"season":"JJA","nino34":27.3},{"year_month":"2006-08","year":2006,"month":8,"season":"JJA","nino34":27.16},{"year_month":"2006-09","year":2006,"month":9,"season":"SON","nino34":27.32},{"year_month":"2006-10","year":2006,"month":10,"season":"SON","nino34":27.41},{"year_month":"2006-11","year":2006,"month":11,"season":"SON","nino34":27.69},{"year_month":"2006-12","year":2006,"month":12,"season":"DJF","nino34":27.74},{"year_month":"2007-01","year":2007,"month":1,"season":"DJF","nino34":27.24},{"year_month":"2007-02","year":2007,"month":2,"season":"DJF","nino34":26.88},{"year_month":"2007-03","year":2007,"month":3,"season":"MAM","nino34":27.1},{"year_month":"2007-04","year":2007,"month":4,"season":"MAM","nino34":27.5},{"year_month":"2007-05","year":2007,"month":5,"season":"MAM","nino34":27.46},{"year_month":"2007-06","year":2007,"month":6,"season":"JJA","nino34":27.37},{"year_month":"2007-07","year":2007,"month":7,"season":"JJA","nino34":26.71},{"year_month":"2007-08","year":2007,"month":8,"season":"JJA","nino34":26.14},{"year_month":"2007-09","year":2007,"month":9,"season":"SON","nino34":25.61},{"year_month":"2007-10","year":2007,"month":10,"season":"SON","nino34":25.32},{"year_month":"2007-11","year":2007,"month":11,"season":"SON","nino34":25.17},{"year_month":"2007-12","year":2007,"month":12,"season":"DJF","nino34":25.01},{"year_month":"2008-01","year":2008,"month":1,"season":"DJF","nino34":24.86},{"year_month":"2008-02","year":2008,"month":2,"season":"DJF","nino34":25.08},{"year_month":"2008-03","year":2008,"month":3,"season":"MAM","nino34":26.07},{"year_month":"2008-04","year":2008,"month":4,"season":"MAM","nino34":26.83},{"year_month":"2008-05","year":2008,"month":5,"season":"MAM","nino34":27.09},{"year_month":"2008-06","year":2008,"month":6,"season":"JJA","nino34":27.04},{"year_month":"2008-07","year":2008,"month":7,"season":"JJA","nino34":26.99},{"year_month":"2008-08","year":2008,"month":8,"season":"JJA","nino34":26.72},{"year_month":"2008-09","year":2008,"month":9,"season":"SON","nino34":26.47},{"year_month":"2008-10","year":2008,"month":10,"season":"SON","nino34":26.37},{"year_month":"2008-11","year":2008,"month":11,"season":"SON","nino34":26.25},{"year_month":"2008-12","year":2008,"month":12,"season":"DJF","nino34":25.74},{"year_month":"2009-01","year":2009,"month":1,"season":"DJF","nino34":25.66},{"year_month":"2009-02","year":2009,"month":2,"season":"DJF","nino34":25.96},{"year_month":"2009-03","year":2009,"month":3,"season":"MAM","nino34":26.59},{"year_month":"2009-04","year":2009,"month":4,"season":"MAM","nino34":27.47},{"year_month":"2009-05","year":2009,"month":5,"season":"MAM","nino34":27.99},{"year_month":"2009-06","year":2009,"month":6,"season":"JJA","nino34":28.04},{"year_month":"2009-07","year":2009,"month":7,"season":"JJA","nino34":27.78},{"year_month":"2009-08","year":2009,"month":8,"season":"JJA","nino34":27.42},{"year_month":"2009-09","year":2009,"month":9,"season":"SON","nino34":27.4},{"year_month":"2009-10","year":2009,"month":10,"season":"SON","nino34":27.6},{"year_month":"2009-11","year":2009,"month":11,"season":"SON","nino34":28.16},{"year_month":"2009-12","year":2009,"month":12,"season":"DJF","nino34":28.34},{"year_month":"2010-01","year":2010,"month":1,"season":"DJF","nino34":28.07},{"year_month":"2010-02","year":2010,"month":2,"season":"DJF","nino34":28.01},{"year_month":"2010-03","year":2010,"month":3,"season":"MAM","nino34":28.18},{"year_month":"2010-04","year":2010,"month":4,"season":"MAM","nino34":28.2},{"year_month":"2010-05","year":2010,"month":5,"season":"MAM","nino34":27.71},{"year_month":"2010-06","year":2010,"month":6,"season":"JJA","nino34":27.04},{"year_month":"2010-07","year":2010,"month":7,"season":"JJA","nino34":26.22},{"year_month":"2010-08","year":2010,"month":8,"season":"JJA","nino34":25.47},{"year_month":"2010-09","year":2010,"month":9,"season":"SON","nino34":25.12},{"year_month":"2010-10","year":2010,"month":10,"season":"SON","nino34":25.03},{"year_month":"2010-11","year":2010,"month":11,"season":"SON","nino34":25.06},{"year_month":"2010-12","year":2010,"month":12,"season":"DJF","nino34":25.0},{"year_month":"2011-01","year":2011,"month":1,"season":"DJF","nino34":25.0},{"year_month":"2011-02","year":2011,"month":2,"season":"DJF","nino34":25.64},{"year_month":"2011-03","year":2011,"month":3,"season":"MAM","nino34":26.36},{"year_month":"2011-04","year":2011,"month":4,"season":"MAM","nino34":27.05},{"year_month":"2011-05","year":2011,"month":5,"season":"MAM","nino34":27.41},{"year_month":"2011-06","year":2011,"month":6,"season":"JJA","nino34":27.35},{"year_month":"2011-07","year":2011,"month":7,"season":"JJA","nino34":26.87},{"year_month":"2011-08","year":2011,"month":8,"season":"JJA","nino34":26.21},{"year_month":"2011-09","year":2011,"month":9,"season":"SON","nino34":25.92},{"year_month":"2011-10","year":2011,"month":10,"season":"SON","nino34":25.67},{"year_month":"2011-11","year":2011,"month":11,"season":"SON","nino34":25.52},{"year_month":"2011-12","year":2011,"month":12,"season":"DJF","nino34":25.54},{"year_month":"2012-01","year":2012,"month":1,"season":"DJF","nino34":25.67},{"year_month":"2012-02","year":2012,"month":2,"season":"DJF","nino34":26.08},{"year_month":"2012-03","year":2012,"month":3,"season":"MAM","nino34":26.67},{"year_month":"2012-04","year":2012,"month":4,"season":"MAM","nino34":27.32},{"year_month":"2012-05","year":2012,"month":5,"season":"MAM","nino34":27.61},{"year_month":"2012-06","year":2012,"month":6,"season":"JJA","nino34":27.75},{"year_month":"2012-07","year":2012,"month":7,"season":"JJA","nino34":27.54},{"year_month":"2012-08","year":2012,"month":8,"season":"JJA","nino34":27.32},{"year_month":"2012-09","year":2012,"month":9,"season":"SON","nino34":27.1},{"year_month":"2012-10","year":2012,"month":10,"season":"SON","nino34":26.98},{"year_month":"2012-11","year":2012,"month":11,"season":"SON","nino34":26.86},{"year_month":"2012-12","year":2012,"month":12,"season":"DJF","nino34":26.34},{"year_month":"2013-01","year":2013,"month":1,"season":"DJF","nino34":26.01},{"year_month":"2013-02","year":2013,"month":2,"season":"DJF","nino34":26.24},{"year_month":"2013-03","year":2013,"month":3,"season":"MAM","nino34":27.03},{"year_month":"2013-04","year":2013,"month":4,"season":"MAM","nino34":27.57},{"year_month":"2013-05","year":2013,"month":5,"season":"MAM","nino34":27.53},{"year_month":"2013-06","year":2013,"month":6,"season":"JJA","nino34":27.3},{"year_month":"2013-07","year":2013,"month":7,"season":"JJA","nino34":26.91},{"year_month":"2013-08","year":2013,"month":8,"season":"JJA","nino34":26.47},{"year_month":"2013-09","year":2013,"month":9,"season":"SON","nino34":26.54},{"year_month":"2013-10","year":2013,"month":10,"season":"SON","nino34":26.52},{"year_month":"2013-11","year":2013,"month":11,"season":"SON","nino34":26.56},{"year_month":"2013-12","year":2013,"month":12,"season":"DJF","nino34":26.43},{"year_month":"2014-01","year":2014,"month":1,"season":"DJF","nino34":26.05},{"year_month":"2014-02","year":2014,"month":2,"season":"DJF","nino34":26.14},{"year_month":"2014-03","year":2014,"month":3,"season":"MAM","nino34":27.0},{"year_month":"2014-04","year":2014,"month":4,"season":"MAM","nino34":27.9},{"year_month":"2014-05","year":2014,"month":5,"season":"MAM","nino34":28.25},{"year_month":"2014-06","year":2014,"month":6,"season":"JJA","nino34":27.96},{"year_month":"2014-07","year":2014,"month":7,"season":"JJA","nino34":27.23},{"year_month":"2014-08","year":2014,"month":8,"season":"JJA","nino34":26.82},{"year_month":"2014-09","year":2014,"month":9,"season":"SON","nino34":27.01},{"year_month":"2014-10","year":2014,"month":10,"season":"SON","nino34":27.16},{"year_month":"2014-11","year":2014,"month":11,"season":"SON","nino34":27.46},{"year_month":"2014-12","year":2014,"month":12,"season":"DJF","nino34":27.31},{"year_month":"2015-01","year":2015,"month":1,"season":"DJF","nino34":27.05},{"year_month":"2015-02","year":2015,"month":2,"season":"DJF","nino34":27.17},{"year_month":"2015-03","year":2015,"month":3,"season":"MAM","nino34":27.75},{"year_month":"2015-04","year":2015,"month":4,"season":"MAM","nino34":28.52},{"year_month":"2015-05","year":2015,"month":5,"season":"MAM","nino34":28.85},{"year_month":"2015-06","year":2015,"month":6,"season":"JJA","nino34":28.9},{"year_month":"2015-07","year":2015,"month":7,"season":"JJA","nino34":28.75},{"year_month":"2015-08","year":2015,"month":8,"season":"JJA","nino34":28.79},{"year_month":"2015-09","year":2015,"month":9,"season":"SON","nino34":28.93},{"year_month":"2015-10","year":2015,"month":10,"season":"SON","nino34":29.08},{"year_month":"2015-11","year":2015,"month":11,"season":"SON","nino34":29.42},{"year_month":"2015-12","year":2015,"month":12,"season":"DJF","nino34":29.26},{"year_month":"2016-01","year":2016,"month":1,"season":"DJF","nino34":29.11},{"year_month":"2016-02","year":2016,"month":2,"season":"DJF","nino34":29.01},{"year_month":"2016-03","year":2016,"month":3,"season":"MAM","nino34":28.9},{"year_month":"2016-04","year":2016,"month":4,"season":"MAM","nino34":28.72},{"year_month":"2016-05","year":2016,"month":5,"season":"MAM","nino34":28.23},{"year_month":"2016-06","year":2016,"month":6,"season":"JJA","nino34":27.69},{"year_month":"2016-07","year":2016,"month":7,"season":"JJA","nino34":26.82},{"year_month":"2016-08","year":2016,"month":8,"season":"JJA","nino34":26.28},{"year_month":"2016-09","year":2016,"month":9,"season":"SON","nino34":26.14},{"year_month":"2016-10","year":2016,"month":10,"season":"SON","nino34":25.98},{"year_month":"2016-11","year":2016,"month":11,"season":"SON","nino34":25.94},{"year_month":"2016-12","year":2016,"month":12,"season":"DJF","nino34":26.1},{"year_month":"2017-01","year":2017,"month":1,"season":"DJF","nino34":26.12},{"year_month":"2017-02","year":2017,"month":2,"season":"DJF","nino34":26.67},{"year_month":"2017-03","year":2017,"month":3,"season":"MAM","nino34":27.32},{"year_month":"2017-04","year":2017,"month":4,"season":"MAM","nino34":28.03},{"year_month":"2017-05","year":2017,"month":5,"season":"MAM","nino34":28.3},{"year_month":"2017-06","year":2017,"month":6,"season":"JJA","nino34":28.06},{"year_month":"2017-07","year":2017,"month":7,"season":"JJA","nino34":27.54},{"year_month":"2017-08","year":2017,"month":8,"season":"JJA","nino34":26.7},{"year_month":"2017-09","year":2017,"month":9,"season":"SON","nino34":26.29},{"year_month":"2017-10","year":2017,"month":10,"season":"SON","nino34":26.15},{"year_month":"2017-11","year":2017,"month":11,"season":"SON","nino34":25.74},{"year_month":"2017-12","year":2017,"month":12,"season":"DJF","nino34":25.62},{"year_month":"2018-01","year":2018,"month":1,"season":"DJF","nino34":25.57},{"year_month":"2018-02","year":2018,"month":2,"season":"DJF","nino34":25.97},{"year_month":"2018-03","year":2018,"month":3,"season":"MAM","nino34":26.48},{"year_month":"2018-04","year":2018,"month":4,"season":"MAM","nino34":27.31},{"year_month":"2018-05","year":2018,"month":5,"season":"MAM","nino34":27.73},{"year_month":"2018-06","year":2018,"month":6,"season":"JJA","nino34":27.77},{"year_month":"2018-07","year":2018,"month":7,"season":"JJA","nino34":27.42},{"year_month":"2018-08","year":2018,"month":8,"season":"JJA","nino34":26.94},{"year_month":"2018-09","year":2018,"month":9,"season":"SON","nino34":27.19},{"year_month":"2018-10","year":2018,"month":10,"season":"SON","nino34":27.62},{"year_month":"2018-11","year":2018,"month":11,"season":"SON","nino34":27.61},{"year_month":"2018-12","year":2018,"month":12,"season":"DJF","nino34":27.49},{"year_month":"2019-01","year":2019,"month":1,"season":"DJF","nino34":27.19},{"year_month":"2019-02","year":2019,"month":2,"season":"DJF","nino34":27.46},{"year_month":"2019-03","year":2019,"month":3,"season":"MAM","nino34":28.09},{"year_month":"2019-04","year":2019,"month":4,"season":"MAM","nino34":28.44},{"year_month":"2019-05","year":2019,"month":5,"season":"MAM","nino34":28.48},{"year_month":"2019-06","year":2019,"month":6,"season":"JJA","nino34":28.18},{"year_month":"2019-07","year":2019,"month":7,"season":"JJA","nino34":27.64},{"year_month":"2019-08","year":2019,"month":8,"season":"JJA","nino34":26.9},{"year_month":"2019-09","year":2019,"month":9,"season":"SON","nino34":26.75},{"year_month":"2019-10","year":2019,"month":10,"season":"SON","nino34":27.2},{"year_month":"2019-11","year":2019,"month":11,"season":"SON","nino34":27.22},{"year_month":"2019-12","year":2019,"month":12,"season":"DJF","nino34":27.12},{"year_month":"2020-01","year":2020,"month":1,"season":"DJF","nino34":27.15},{"year_month":"2020-02","year":2020,"month":2,"season":"DJF","nino34":27.12},{"year_month":"2020-03","year":2020,"month":3,"season":"MAM","nino34":27.76},{"year_month":"2020-04","year":2020,"month":4,"season":"MAM","nino34":28.18},{"year_month":"2020-05","year":2020,"month":5,"season":"MAM","nino34":27.66},{"year_month":"2020-06","year":2020,"month":6,"season":"JJA","nino34":27.39},{"year_month":"2020-07","year":2020,"month":7,"season":"JJA","nino34":26.99},{"year_month":"2020-08","year":2020,"month":8,"season":"JJA","nino34":26.26},{"year_month":"2020-09","year":2020,"month":9,"season":"SON","nino34":25.89},{"year_month":"2020-10","year":2020,"month":10,"season":"SON","nino34":25.46},{"year_month":"2020-11","year":2020,"month":11,"season":"SON","nino34":25.28},{"year_month":"2020-12","year":2020,"month":12,"season":"DJF","nino34":25.44},{"year_month":"2021-01","year":2021,"month":1,"season":"DJF","nino34":25.55},{"year_month":"2021-02","year":2021,"month":2,"season":"DJF","nino34":25.75},{"year_month":"2021-03","year":2021,"month":3,"season":"MAM","nino34":26.48},{"year_month":"2021-04","year":2021,"month":4,"season":"MAM","nino34":27.1},{"year_month":"2021-05","year":2021,"month":5,"season":"MAM","nino34":27.47},{"year_month":"2021-06","year":2021,"month":6,"season":"JJA","nino34":27.45},{"year_month":"2021-07","year":2021,"month":7,"season":"JJA","nino34":26.9},{"year_month":"2021-08","year":2021,"month":8,"season":"JJA","nino34":26.32},{"year_month":"2021-09","year":2021,"month":9,"season":"SON","nino34":26.17},{"year_month":"2021-10","year":2021,"month":10,"season":"SON","nino34":25.77},{"year_month":"2021-11","year":2021,"month":11,"season":"SON","nino34":25.76},{"year_month":"2021-12","year":2021,"month":12,"season":"DJF","nino34":25.54},{"year_month":"2022-01","year":2022,"month":1,"season":"DJF","nino34":25.6},{"year_month":"2022-02","year":2022,"month":2,"season":"DJF","nino34":25.86},{"year_month":"2022-03","year":2022,"month":3,"season":"MAM","nino34":26.31},{"year_month":"2022-04","year":2022,"month":4,"season":"MAM","nino34":26.7},{"year_month":"2022-05","year":2022,"month":5,"season":"MAM","nino34":26.82},{"year_month":"2022-06","year":2022,"month":6,"season":"JJA","nino34":26.98},{"year_month":"2022-07","year":2022,"month":7,"season":"JJA","nino34":26.6},{"year_month":"2022-08","year":2022,"month":8,"season":"JJA","nino34":25.88},{"year_month":"2022-09","year":2022,"month":9,"season":"SON","nino34":25.65},{"year_month":"2022-10","year":2022,"month":10,"season":"SON","nino34":25.73},{"year_month":"2022-11","year":2022,"month":11,"season":"SON","nino34":25.8},{"year_month":"2022-12","year":2022,"month":12,"season":"DJF","nino34":25.75},{"year_month":"2023-01","year":2023,"month":1,"season":"DJF","nino34":25.83},{"year_month":"2023-02","year":2023,"month":2,"season":"DJF","nino34":26.29},{"year_month":"2023-03","year":2023,"month":3,"season":"MAM","nino34":27.17},{"year_month":"2023-04","year":2023,"month":4,"season":"MAM","nino34":27.96},{"year_month":"2023-05","year":2023,"month":5,"season":"MAM","nino34":28.39},{"year_month":"2023-06","year":2023,"month":6,"season":"JJA","nino34":28.57},{"year_month":"2023-07","year":2023,"month":7,"season":"JJA","nino34":28.32},{"year_month":"2023-08","year":2023,"month":8,"season":"JJA","nino34":28.2},{"year_month":"2023-09","year":2023,"month":9,"season":"SON","nino34":28.32},{"year_month":"2023-10","year":2023,"month":10,"season":"SON","nino34":28.44},{"year_month":"2023-11","year":2023,"month":11,"season":"SON","nino34":28.72},{"year_month":"2023-12","year":2023,"month":12,"season":"DJF","nino34":28.62},{"year_month":"2024-01","year":2024,"month":1,"season":"DJF","nino34":28.35},{"year_month":"2024-02","year":2024,"month":2,"season":"DJF","nino34":28.27},{"year_month":"2024-03","year":2024,"month":3,"season":"MAM","nino34":28.41},{"year_month":"2024-04","year":2024,"month":4,"season":"MAM","nino34":28.59},{"year_month":"2024-05","year":2024,"month":5,"season":"MAM","nino34":28.16},{"year_month":"2024-06","year":2024,"month":6,"season":"JJA","nino34":27.9},{"year_month":"2024-07","year":2024,"month":7,"season":"JJA","nino34":27.34},{"year_month":"2024-08","year":2024,"month":8,"season":"JJA","nino34":26.73},{"year_month":"2024-09","year":2024,"month":9,"season":"SON","nino34":26.45},{"year_month":"2024-10","year":2024,"month":10,"season":"SON","nino34":26.44},{"year_month":"2024-11","year":2024,"month":11,"season":"SON","nino34":26.45},{"year_month":"2024-12","year":2024,"month":12,"season":"DJF","nino34":26.0},{"year_month":"2025-01","year":2025,"month":1,"season":"DJF","nino34":25.8},{"year_month":"2025-02","year":2025,"month":2,"season":"DJF","nino34":26.32},{"year_month":"2025-03","year":2025,"month":3,"season":"MAM","nino34":27.29},{"year_month":"2025-04","year":2025,"month":4,"season":"MAM","nino34":27.68},{"year_month":"2025-05","year":2025,"month":5,"season":"MAM","nino34":27.8},{"year_month":"2025-06","year":2025,"month":6,"season":"JJA","nino34":27.66},{"year_month":"2025-07","year":2025,"month":7,"season":"JJA","nino34":27.15},{"year_month":"2025-08","year":2025,"month":8,"season":"JJA","nino34":26.49},{"year_month":"2025-09","year":2025,"month":9,"season":"SON","nino34":26.25},{"year_month":"2025-10","year":2025,"month":10,"season":"SON","nino34":26.22},{"year_month":"2025-11","year":2025,"month":11,"season":"SON","nino34":26.01},{"year_month":"2025-12","year":2025,"month":12,"season":"DJF","nino34":25.93},{"year_month":"2026-01","year":2026,"month":1,"season":"DJF","nino34":25.96},{"year_month":"2026-02","year":2026,"month":2,"season":"DJF","nino34":26.41}];
+
+const EVENTS = [{"event_id":1,"event_type":"La Niña","start_month":"1954-04","end_month":"1954-08","peak_month":"1954-08","peak_intensity":-1.36},{"event_id":2,"event_type":"El Niño","start_month":"1957-05","end_month":"1957-09","peak_month":"1957-07","peak_intensity":0.872},{"event_id":3,"event_type":"La Niña","start_month":"1961-08","end_month":"1961-12","peak_month":"1961-09","peak_intensity":-0.851},{"event_id":4,"event_type":"La Niña","start_month":"1962-08","end_month":"1962-12","peak_month":"1962-12","peak_intensity":-0.85},{"event_id":5,"event_type":"El Niño","start_month":"1963-08","end_month":"1963-12","peak_month":"1963-12","peak_intensity":0.896},{"event_id":6,"event_type":"La Niña","start_month":"1964-04","end_month":"1964-08","peak_month":"1964-08","peak_intensity":-1.163},{"event_id":7,"event_type":"El Niño","start_month":"1965-07","end_month":"1965-11","peak_month":"1965-11","peak_intensity":1.463},{"event_id":8,"event_type":"La Niña","start_month":"1966-12","end_month":"1967-04","peak_month":"1967-03","peak_intensity":-0.779},{"event_id":9,"event_type":"La Niña","start_month":"1967-09","end_month":"1968-01","peak_month":"1968-01","peak_intensity":-0.845},{"event_id":10,"event_type":"La Niña","start_month":"1970-06","end_month":"1970-10","peak_month":"1970-09","peak_intensity":-1.128},{"event_id":11,"event_type":"El Niño","start_month":"1972-06","end_month":"1972-10","peak_month":"1972-10","peak_intensity":1.597},{"event_id":12,"event_type":"La Niña","start_month":"1973-05","end_month":"1973-09","peak_month":"1973-09","peak_intensity":-1.741},{"event_id":13,"event_type":"La Niña","start_month":"1978-05","end_month":"1978-09","peak_month":"1978-08","peak_intensity":-0.64},{"event_id":14,"event_type":"El Niño","start_month":"1982-05","end_month":"1982-09","peak_month":"1982-09","peak_intensity":1.422},{"event_id":15,"event_type":"La Niña","start_month":"1983-09","end_month":"1984-01","peak_month":"1983-11","peak_intensity":-1.107},{"event_id":16,"event_type":"La Niña","start_month":"1984-10","end_month":"1985-02","peak_month":"1984-12","peak_intensity":-1.197},{"event_id":17,"event_type":"El Niño","start_month":"1986-09","end_month":"1987-01","peak_month":"1987-01","peak_intensity":1.142},{"event_id":18,"event_type":"La Niña","start_month":"1988-05","end_month":"1988-09","peak_month":"1988-07","peak_intensity":-1.465},{"event_id":19,"event_type":"El Niño","start_month":"1991-06","end_month":"1991-10","peak_month":"1991-10","peak_intensity":0.864},{"event_id":20,"event_type":"El Niño","start_month":"1994-09","end_month":"1995-01","peak_month":"1994-12","peak_intensity":1.163},{"event_id":21,"event_type":"La Niña","start_month":"1995-08","end_month":"1995-12","peak_month":"1995-12","peak_intensity":-0.934},{"event_id":22,"event_type":"El Niño","start_month":"1997-05","end_month":"1997-09","peak_month":"1997-09","peak_intensity":2.149},{"event_id":23,"event_type":"La Niña","start_month":"1998-07","end_month":"1998-11","peak_month":"1998-11","peak_intensity":-1.487},{"event_id":24,"event_type":"El Niño","start_month":"2002-06","end_month":"2002-10","peak_month":"2002-10","peak_intensity":1.304},{"event_id":25,"event_type":"El Niño","start_month":"2004-07","end_month":"2004-11","peak_month":"2004-09","peak_intensity":0.785},{"event_id":26,"event_type":"El Niño","start_month":"2006-09","end_month":"2007-01","peak_month":"2006-11","peak_intensity":0.993},{"event_id":27,"event_type":"La Niña","start_month":"2007-08","end_month":"2007-12","peak_month":"2007-12","peak_intensity":-1.567},{"event_id":28,"event_type":"La Niña","start_month":"2008-11","end_month":"2009-03","peak_month":"2009-01","peak_intensity":-0.832},{"event_id":29,"event_type":"El Niño","start_month":"2009-07","end_month":"2009-11","peak_month":"2009-11","peak_intensity":1.413},{"event_id":30,"event_type":"La Niña","start_month":"2010-06","end_month":"2010-10","peak_month":"2010-10","peak_intensity":-1.606},{"event_id":31,"event_type":"La Niña","start_month":"2011-08","end_month":"2011-12","peak_month":"2011-11","peak_intensity":-1.044},{"event_id":32,"event_type":"El Niño","start_month":"2015-03","end_month":"2015-07","peak_month":"2015-07","peak_intensity":1.612},{"event_id":33,"event_type":"La Niña","start_month":"2017-10","end_month":"2018-02","peak_month":"2017-12","peak_intensity":-0.937},{"event_id":34,"event_type":"El Niño","start_month":"2018-09","end_month":"2019-01","peak_month":"2018-11","peak_intensity":0.953},{"event_id":35,"event_type":"La Niña","start_month":"2020-08","end_month":"2020-12","peak_month":"2020-11","peak_intensity":-1.227},{"event_id":36,"event_type":"La Niña","start_month":"2021-09","end_month":"2022-01","peak_month":"2022-01","peak_intensity":-0.952},{"event_id":37,"event_type":"El Niño","start_month":"2023-05","end_month":"2023-09","peak_month":"2023-09","peak_intensity":1.575}];
+
+const RIVER_DATA = [{"event_id":1,"event_type":"La Niña","start_month":"1954-04","end_month":"1954-08","colorado":-0.1684,"columbia":1.7079,"sacramento":-0.121},{"event_id":2,"event_type":"El Niño","start_month":"1957-05","end_month":"1957-09","colorado":4.0811,"columbia":1.1472,"sacramento":-0.2704},{"event_id":3,"event_type":"La Niña","start_month":"1961-08","end_month":"1961-12","colorado":-0.5114,"columbia":-0.9223,"sacramento":-0.5082},{"event_id":4,"event_type":"La Niña","start_month":"1962-08","end_month":"1962-12","colorado":-0.7426,"columbia":-0.6442,"sacramento":-0.3077},{"event_id":5,"event_type":"El Niño","start_month":"1963-08","end_month":"1963-12","colorado":-1.4228,"columbia":-0.8634,"sacramento":-0.2104},{"event_id":6,"event_type":"La Niña","start_month":"1964-04","end_month":"1964-08","colorado":-1.0064,"columbia":1.3674,"sacramento":-0.2328},{"event_id":7,"event_type":"El Niño","start_month":"1965-07","end_month":"1965-11","colorado":-0.1634,"columbia":-0.2555,"sacramento":-0.2082},{"event_id":8,"event_type":"La Niña","start_month":"1966-12","end_month":"1967-04","colorado":-0.3156,"columbia":-0.5538,"sacramento":0.7565},{"event_id":9,"event_type":"La Niña","start_month":"1967-09","end_month":"1968-01","colorado":-0.5225,"columbia":-0.7065,"sacramento":-0.2479},{"event_id":10,"event_type":"La Niña","start_month":"1970-06","end_month":"1970-10","colorado":-0.1826,"columbia":-0.0679,"sacramento":-0.3409},{"event_id":11,"event_type":"El Niño","start_month":"1972-06","end_month":"1972-10","colorado":0.1251,"columbia":0.8602,"sacramento":-0.2672},{"event_id":12,"event_type":"La Niña","start_month":"1973-05","end_month":"1973-09","colorado":-0.3738,"columbia":-0.558,"sacramento":-0.1175},{"event_id":13,"event_type":"La Niña","start_month":"1978-05","end_month":"1978-09","colorado":0.047,"columbia":0.0663,"sacramento":-0.2601},{"event_id":14,"event_type":"El Niño","start_month":"1982-05","end_month":"1982-09","colorado":-0.1703,"columbia":0.8908,"sacramento":-0.0173},{"event_id":15,"event_type":"La Niña","start_month":"1983-09","end_month":"1984-01","colorado":1.3178,"columbia":-0.2864,"sacramento":0.9877},{"event_id":16,"event_type":"La Niña","start_month":"1984-10","end_month":"1985-02","colorado":1.3126,"columbia":-0.1395,"sacramento":-0.1931},{"event_id":17,"event_type":"El Niño","start_month":"1986-09","end_month":"1987-01","colorado":1.2082,"columbia":-0.4444,"sacramento":-0.5865},{"event_id":18,"event_type":"La Niña","start_month":"1988-05","end_month":"1988-09","colorado":-0.2947,"columbia":-0.4826,"sacramento":-0.085},{"event_id":19,"event_type":"El Niño","start_month":"1991-06","end_month":"1991-10","colorado":-0.0282,"columbia":0.0193,"sacramento":-0.5423},{"event_id":20,"event_type":"El Niño","start_month":"1994-09","end_month":"1995-01","colorado":-0.3625,"columbia":-0.8023,"sacramento":0.0634},{"event_id":21,"event_type":"La Niña","start_month":"1995-08","end_month":"1995-12","colorado":0.3277,"columbia":-0.2528,"sacramento":-0.3224},{"event_id":22,"event_type":"El Niño","start_month":"1997-05","end_month":"1997-09","colorado":0.948,"columbia":1.4411,"sacramento":-0.0235},{"event_id":23,"event_type":"La Niña","start_month":"1998-07","end_month":"1998-11","colorado":0.4922,"columbia":-0.4834,"sacramento":0.1225},{"event_id":24,"event_type":"El Niño","start_month":"2002-06","end_month":"2002-10","colorado":-0.1698,"columbia":0.0193,"sacramento":-0.1233},{"event_id":25,"event_type":"El Niño","start_month":"2004-07","end_month":"2004-11","colorado":-0.1932,"columbia":-0.6216,"sacramento":-0.2562},{"event_id":26,"event_type":"El Niño","start_month":"2006-09","end_month":"2007-01","colorado":-0.2184,"columbia":-0.6083,"sacramento":-0.4917},{"event_id":27,"event_type":"La Niña","start_month":"2007-08","end_month":"2007-12","colorado":-0.21,"columbia":-0.7418,"sacramento":-0.4878},{"event_id":28,"event_type":"La Niña","start_month":"2008-11","end_month":"2009-03","colorado":-0.1859,"columbia":-0.4499,"sacramento":-0.6899},{"event_id":29,"event_type":"El Niño","start_month":"2009-07","end_month":"2009-11","colorado":-0.1603,"columbia":-0.7336,"sacramento":-0.3998},{"event_id":30,"event_type":"La Niña","start_month":"2010-06","end_month":"2010-10","colorado":-0.2963,"columbia":-0.1362,"sacramento":-0.2082},{"event_id":31,"event_type":"La Niña","start_month":"2011-08","end_month":"2011-12","colorado":0.666,"columbia":-0.4185,"sacramento":-0.3368},{"event_id":32,"event_type":"El Niño","start_month":"2015-03","end_month":"2015-07","colorado":-0.0664,"columbia":-0.1243,"sacramento":-0.6602},{"event_id":33,"event_type":"La Niña","start_month":"2017-10","end_month":"2018-02","colorado":-0.1423,"columbia":-0.2448,"sacramento":-0.6526},{"event_id":34,"event_type":"El Niño","start_month":"2018-09","end_month":"2019-01","colorado":-0.174,"columbia":-0.7559,"sacramento":-0.4874},{"event_id":35,"event_type":"La Niña","start_month":"2020-08","end_month":"2020-12","colorado":-0.1909,"columbia":-0.6485,"sacramento":-0.6046},{"event_id":36,"event_type":"La Niña","start_month":"2021-09","end_month":"2022-01","colorado":-0.433,"columbia":-0.5379,"sacramento":-0.6353},{"event_id":37,"event_type":"El Niño","start_month":"2023-05","end_month":"2023-09","colorado":0.27,"columbia":-0.1493,"sacramento":-0.1315}];
+
+// Preprocessing
+RAW_MONTHLY.forEach(d => { d.date = new Date(d.year, d.month - 1, 15); });
+
+const climatology = {};
+for (let m = 1; m <= 12; m++) {
+  const base = RAW_MONTHLY.filter(d => d.year >= 1981 && d.year <= 2010 && d.month === m);
+  climatology[m] = base.reduce((s, d) => s + d.nino34, 0) / base.length;
+}
+RAW_MONTHLY.forEach(d => { d.anomaly = d.nino34 - climatology[d.month]; });
+
+const anomalyByYM = {};
+RAW_MONTHLY.forEach(d => { anomalyByYM[d.year_month] = d.anomaly; });
+
+EVENTS.forEach(e => {
+  const [py, pm] = e.peak_month.split('-').map(Number);
+  e.peakDate = new Date(py, pm - 1, 15);
+  e.peakAnomaly = anomalyByYM[e.peak_month] ?? 0;
+  e.rivers = RIVER_DATA.find(r => r.event_id === e.event_id);
+});
+
+// Chart setup
+const chartWrap = document.querySelector('.chart-wrap');
+const svg = d3.select('#main-chart');
+const M = { top: 22, right: 90, bottom: 44, left: 64 };
+const TW = chartWrap.clientWidth || 980;
+const TH = 350;
+const W = TW - M.left - M.right;
+const H = TH - M.top - M.bottom;
+
+svg.attr('width', TW).attr('height', TH).attr('viewBox', `0 0 ${TW} ${TH}`);
+const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+const xSc = d3.scaleTime().domain([new Date(1951,0,1), new Date(2026,1,28)]).range([0, W]);
+const ySc = d3.scaleLinear().domain([-3, 3]).range([H, 0]);
+
+const defs = svg.append('defs');
+
+const wGrad = defs.append('linearGradient').attr('id','wg').attr('x1','0%').attr('y1','0%').attr('x2','0%').attr('y2','100%');
+wGrad.append('stop').attr('offset','0%').attr('stop-color','#b83c0e').attr('stop-opacity',0.5);
+wGrad.append('stop').attr('offset','100%').attr('stop-color','#b83c0e').attr('stop-opacity',0.02);
+
+const cGrad = defs.append('linearGradient').attr('id','cg').attr('x1','0%').attr('y1','100%').attr('x2','0%').attr('y2','0%');
+cGrad.append('stop').attr('offset','0%').attr('stop-color','#1a5276').attr('stop-opacity',0.45);
+cGrad.append('stop').attr('offset','100%').attr('stop-color','#1a5276').attr('stop-opacity',0.02);
+
+defs.append('clipPath').attr('id','cw').append('rect').attr('x',0).attr('y',0).attr('width',W).attr('height', ySc(0.5));
+const ccY = ySc(-0.5);
+defs.append('clipPath').attr('id','cc').append('rect').attr('x',0).attr('y',ccY).attr('width',W).attr('height', H - ccY);
+
+// Grid
+[-2,-1,-0.5,0,0.5,1,2].forEach(v => {
+  g.append('line').attr('x1',0).attr('x2',W).attr('y1',ySc(v)).attr('y2',ySc(v))
+    .attr('stroke', v===0 ? 'rgba(28,21,16,0.16)' : 'rgba(28,21,16,0.06)')
+    .attr('stroke-width', v===0 ? 1 : 0.75)
+    .attr('stroke-dasharray', v===0 ? 'none' : '3,4');
+});
+
+[-2,-1,-0.5,0,0.5,1,2].forEach(v => {
+  g.append('text').attr('x',-6).attr('y', ySc(v)).attr('dy','0.35em')
+    .attr('text-anchor','end').attr('font-family','Courier Prime, monospace').attr('font-size','10px')
+    .attr('fill', v===0 ? '#8c7b6e' : '#c4b5a8')
+    .text(v===0 ? '0°' : (v>0?'+':'')+v+'°');
+});
+
+g.append('text').attr('transform','rotate(-90)').attr('x',-H/2).attr('y',-48)
+  .attr('text-anchor','middle').attr('font-family','Courier Prime, monospace')
+  .attr('font-size','9px').attr('fill','#8c7b6e').attr('letter-spacing','0.08em')
+  .text('DEPARTURE FROM NORMAL (°C)');
+
+const xAxis = d3.axisBottom(xSc).ticks(d3.timeYear.every(5)).tickFormat(d3.timeFormat('%Y')).tickSize(4);
+g.append('g').attr('transform',`translate(0,${H})`).call(xAxis)
+  .call(ax => ax.select('.domain').attr('stroke','rgba(28,21,16,0.12)'))
+  .call(ax => ax.selectAll('.tick line').attr('stroke','rgba(28,21,16,0.12)'))
+  .call(ax => ax.selectAll('text').attr('font-family','Courier Prime, monospace').attr('font-size','10px').attr('fill','#8c7b6e').attr('dy','1.2em'));
+
+g.append('text').attr('x', W+8).attr('y', ySc(0.5)-12).attr('text-anchor','start')
+  .attr('font-family','Courier Prime, monospace').attr('font-size','8px')
+  .attr('fill','rgba(184,60,14,0.55)').attr('letter-spacing','0.06em').text('EL NIÑO');
+g.append('text').attr('x', W+8).attr('y', ySc(0.5)-2).attr('text-anchor','start')
+  .attr('font-family','Courier Prime, monospace').attr('font-size','8px')
+  .attr('fill','rgba(184,60,14,0.55)').attr('letter-spacing','0.06em').text('THRESHOLD');
+g.append('text').attr('x', W+8).attr('y', ySc(-0.5)+5).attr('text-anchor','start')
+  .attr('font-family','Courier Prime, monospace').attr('font-size','8px')
+  .attr('fill','rgba(26,82,118,0.55)').attr('letter-spacing','0.06em').text('LA NIÑA');
+g.append('text').attr('x', W+8).attr('y', ySc(-0.5)+15).attr('text-anchor','start')
+  .attr('font-family','Courier Prime, monospace').attr('font-size','8px')
+  .attr('fill','rgba(26,82,118,0.55)').attr('letter-spacing','0.06em').text('THRESHOLD');
+
+const area = d3.area().x(d => xSc(d.date)).y0(ySc(0)).y1(d => ySc(d.anomaly)).curve(d3.curveMonotoneX);
+const line = d3.line().x(d => xSc(d.date)).y(d => ySc(d.anomaly)).curve(d3.curveMonotoneX);
+
+g.append('path').datum(RAW_MONTHLY).attr('d', area).attr('fill','rgba(140,123,110,0.07)');
+g.append('path').datum(RAW_MONTHLY).attr('d', area).attr('fill','url(#wg)').attr('clip-path','url(#cw)');
+g.append('path').datum(RAW_MONTHLY).attr('d', area).attr('fill','url(#cg)').attr('clip-path','url(#cc)');
+g.append('path').datum(RAW_MONTHLY).attr('d', line).attr('fill','none').attr('stroke','rgba(28,21,16,0.3)').attr('stroke-width','1.1px');
+
+const nowX = xSc(new Date(2026,1,15));
+g.append('line').attr('x1',nowX).attr('x2',nowX).attr('y1',0).attr('y2',H)
+  .attr('stroke','rgba(140,123,110,0.25)').attr('stroke-width',1).attr('stroke-dasharray','3,4');
+g.append('text').attr('x',nowX-5).attr('y',9).attr('text-anchor','end')
+  .attr('font-family','Courier Prime, monospace').attr('font-size','8px').attr('fill','#c4b5a8').text('FEB 2026');
+
+const annotated = new Set([22, 32, 14, 12, 18, 30, 7, 11]);
+
+const mG = g.selectAll('.em').data(EVENTS).join('g')
+  .attr('class','em')
+  .attr('transform', d => `translate(${xSc(d.peakDate)},${ySc(d.peakAnomaly)})`)
+  .style('cursor','pointer');
+
+mG.append('circle').attr('class','ring').attr('r',10).attr('fill','none')
+  .attr('stroke', d => d.event_type==='El Niño' ? '#b83c0e' : '#1a5276')
+  .attr('stroke-width',1).attr('opacity',0);
+
+mG.append('circle').attr('class','dot')
+  .attr('r', d => Math.abs(d.peak_intensity)>1.4 ? 5.5 : Math.abs(d.peak_intensity)>0.9 ? 4 : 3)
+  .attr('fill', d => d.event_type==='El Niño' ? '#b83c0e' : '#1a5276')
+  .attr('fill-opacity', 0.82)
+  .attr('stroke', d => d.event_type==='El Niño' ? 'rgba(184,60,14,0.18)' : 'rgba(26,82,118,0.18)')
+  .attr('stroke-width', 2.5);
+
+mG.filter(d => annotated.has(d.event_id)).append('text')
+  .attr('y', d => d.peak_intensity > 0 ? -11 : 14)
+  .attr('text-anchor','middle').attr('font-family','Courier Prime, monospace').attr('font-size','9px')
+  .attr('fill', d => d.event_type==='El Niño' ? 'rgba(184,60,14,0.6)' : 'rgba(26,82,118,0.6)')
+  .text(d => d.peak_month.slice(0,4));
+
+// Interaction
+mG.on('mouseenter', (evt, d) => activate(d)).on('click', (evt, d) => activate(d));
+
+function activate(d) {
+  mG.select('.ring').attr('opacity',0);
+  mG.select('.dot').each(function(dd) {
+    d3.select(this).attr('r', Math.abs(dd.peak_intensity)>1.4?5.5:Math.abs(dd.peak_intensity)>0.9?4:3);
+  });
+  mG.filter(dd => dd.event_id===d.event_id).select('.ring').attr('opacity',0.5);
+  mG.filter(dd => dd.event_id===d.event_id).select('.dot').attr('r', Math.abs(d.peak_intensity)>1.4?8.5:7);
+  renderPanel(d);
+}
+
+// Panel
+const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmt(ym) { const [y,m]=ym.split('-'); return `${MO[+m-1]} ${y}`; }
+function sign(v) { return v>=0 ? `+${v.toFixed(2)}` : v.toFixed(2); }
+
+function plainEnglish(v) {
+  const a = Math.abs(v);
+  if (a < 0.15) return 'about normal';
+  const dir = v > 0 ? 'above normal' : 'below normal';
+  if (a < 0.5) return `slightly ${dir}`;
+  if (a < 1.0) return `moderately ${dir}`;
+  if (a < 1.8) return `well ${dir}`;
+  return `far ${dir}`;
+}
+
+function barCSS(val, color) {
+  const cl = Math.max(-2.5, Math.min(2.5, val));
+  const pct = cl / 2.5;
+  if (pct >= 0) return `left:50%;width:${pct*50}%;background:${color};opacity:0.72;top:2px;bottom:2px;border-radius:2px;position:absolute;`;
+  const w = -pct*50, l = 50+pct*50;
+  return `left:${l}%;width:${w}%;background:${color};opacity:0.72;top:2px;bottom:2px;border-radius:2px;position:absolute;`;
+}
+
+function intensityLabel(v) {
+  const a = Math.abs(v);
+  if (a >= 1.5) return 'Major event';
+  if (a >= 1.0) return 'Strong event';
+  if (a >= 0.7) return 'Moderate event';
+  return 'Weak event';
+}
+
+function renderPanel(event) {
+  const isEl = event.event_type === 'El Niño';
+  const cls = isEl ? 'warm' : 'cool';
+  const color = isEl ? '#b83c0e' : '#1a5276';
+  const rivers = event.rivers;
+
+  const typeWord = isEl ? 'warmer' : 'cooler';
+  const precip = isEl
+    ? 'El Niño winters tend to bring more rain to California and the Southwest, though how much varies a lot by event.'
+    : 'La Niña winters tend to cut precipitation across the Southwest and Pacific Northwest, and drought usually follows.';
+
+  const caption = `During this event the Pacific ran ${typeWord} than normal by ${Math.abs(event.peak_intensity).toFixed(2)}°C at its peak. The bars below show whether each river ran higher or lower than its long-term average during this period. ${precip}`;
+
+  document.getElementById('detail-panel').innerHTML = `
+    <div class="panel-content">
+      <div class="panel-header">
+        <div>
+          <div class="event-title ${cls}">${event.event_type}, ${intensityLabel(event.peak_intensity)}</div>
+          <div class="event-meta">${fmt(event.start_month)} to ${fmt(event.end_month)} &nbsp;·&nbsp; peak ${fmt(event.peak_month)} &nbsp;·&nbsp; event #${event.event_id} of 37</div>
+        </div>
+        <div class="peak-block">
+          <div class="peak-label">Ocean temperature at peak</div>
+          <div class="peak-val ${cls}">${sign(event.peak_intensity)}°C</div>
+        </div>
+      </div>
+
+      <div class="rivers-section">
+        <div class="rivers-heading">Western river flow during this event, relative to long-term average</div>
+        <div class="rivers">
+          <div class="river-row">
+            <div class="river-label"><span class="river-name">Colorado River</span><span class="river-loc">Lees Ferry, AZ · USGS 09380000</span></div>
+            <div class="river-track"><div class="river-mid"></div><div class="river-bar" id="rCO" style="left:50%;width:0;background:${color};"></div></div>
+            <div class="river-readout"><span class="river-num">${sign(rivers.colorado)} σ</span><span class="river-plain">${plainEnglish(rivers.colorado)}</span></div>
+          </div>
+          <div class="river-row">
+            <div class="river-label"><span class="river-name">Columbia River</span><span class="river-loc">The Dalles, OR · USGS 14105700</span></div>
+            <div class="river-track"><div class="river-mid"></div><div class="river-bar" id="rCU" style="left:50%;width:0;background:${color};"></div></div>
+            <div class="river-readout"><span class="river-num">${sign(rivers.columbia)} σ</span><span class="river-plain">${plainEnglish(rivers.columbia)}</span></div>
+          </div>
+          <div class="river-row">
+            <div class="river-label"><span class="river-name">Sacramento River</span><span class="river-loc">Bend Bridge, CA · USGS 11377100</span></div>
+            <div class="river-track"><div class="river-mid"></div><div class="river-bar" id="rSA" style="left:50%;width:0;background:${color};"></div></div>
+            <div class="river-readout"><span class="river-num">${sign(rivers.sacramento)} σ</span><span class="river-plain">${plainEnglish(rivers.sacramento)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-note">${caption}</div>
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    document.getElementById('rCO').style.cssText = barCSS(rivers.colorado, color);
+    document.getElementById('rCU').style.cssText = barCSS(rivers.columbia, color);
+    document.getElementById('rSA').style.cssText = barCSS(rivers.sacramento, color);
+    ['rCO','rCU','rSA'].forEach(id => {
+      document.getElementById(id).style.transition = 'left 0.55s ease, width 0.55s ease';
+    });
+  });
+}
+</script>
+</body>
+</html>
