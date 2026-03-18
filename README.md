@@ -37,4 +37,4 @@ omitted my credentials to keep them encrypted.
 
 ## About
 
-Built by Noah (me), undergraduate in Applied Physics at the University of Arizona. Submitted to the 2026 UA Libraries Data Visualization Challenge.
+Built by Noah (me), an undergraduate in Applied Physics at the University of Arizona. Submitted to the 2026 UA Libraries Data Visualization Challenge.
