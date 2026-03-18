@@ -26,7 +26,7 @@ All five sources were pulled into a PostgreSQL database on Aiven as part of an E
 
 ## Stack
 
-D3.js v7, Google Fonts, plain HTML/CSS/JS. No build step, the whole thing is one self-contained file.
+D3.js v7, Google Fonts, plain HTML/CSS/JS. There is no build step, the whole thing is one self-contained file.
 
 ## About
 
