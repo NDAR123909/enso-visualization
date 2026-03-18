@@ -20,7 +20,7 @@ This charts 75 years of those swings against measured streamflow in three wester
 
 ## Method
 
-Events use the NOAA CPC definition: a Niño 3.4 anomaly of ±0.5°C held for at least five consecutive months against a 1981–2010 baseline. River values are z-scores relative to each gauge's long-term monthly mean, the Colorado and Sacramento run at completely different scales, so raw discharge numbers don't compare across basins.
+Events use the NOAA CPC definition: a Niño 3.4 anomaly of ±0.5°C held for at least five consecutive months against a 1981–2010 baseline. River values are z-scores relative to each gauge's long-term monthly mean. Note that the Colorado and Sacramento run at completely different scales, so raw discharge numbers don't compare across basins.
 
 All five sources were pulled into a PostgreSQL database on Aiven as part of an ETL pipeline I built for ISTA 322. The visualization draws directly from data queried out of that database.
 
