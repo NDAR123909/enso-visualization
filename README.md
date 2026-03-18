@@ -1,4 +1,4 @@
-# ENSO-Visualization
+# 75 Years of the Pacific's Mood Swings
 
 An interactive visualization mapping El Niño and La Niña events against river flows in the American West, 1951 to 2026.
 
