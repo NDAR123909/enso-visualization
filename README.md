@@ -28,6 +28,13 @@ All five sources were pulled into a PostgreSQL database on Aiven as part of an E
 
 D3.js v7, Google Fonts, plain HTML/CSS/JS. There is no build step, the whole thing is one self-contained file.
 
+## Data pipeline
+
+The ETL notebook that builds the underlying database is in `enso_rdb.ipynb`.
+It pulls from five federal data sources and loads into PostgreSQL via Aiven.
+Note: you'll need to supply your own database and Backblaze credentials. I purposefully 
+omitted my credentials to keep them encrypted.
+
 ## About
 
 Built by Noah (me), undergraduate in Applied Physics at the University of Arizona. Submitted to the 2026 UA Libraries Data Visualization Challenge.
