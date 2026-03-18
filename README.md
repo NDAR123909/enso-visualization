@@ -1,4 +1,5 @@
 # 75 Years of the Pacific's Mood Swings
+<img width="1326" height="863" alt="image" src="https://github.com/user-attachments/assets/db862fde-2776-4eac-9335-7083043be268" />
 
 An interactive visualization mapping El Niño and La Niña events against river flows in the American West, 1951 to 2026.
 
